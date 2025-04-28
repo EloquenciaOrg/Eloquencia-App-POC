@@ -79,43 +79,50 @@ class HomePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: const Text('Rejoindre'),
+              title: Text('Rejoindre',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Blog'),
+              title: Text('Blog',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Partenaires'),
+              title: Text('Partenaires',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Réductions'),
+              title: Text('Réductions',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Contact'),
+              title: Text('Contact',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('À propos'),
+              title: Text('À propos',
+                style: Theme.of(context).textTheme.bodyMedium),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Connexion'), // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
+              title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
+                style: Theme.of(context).textTheme.bodyMedium), 
               onTap: () {
                 Navigator.pop(context);
               },
@@ -125,46 +132,86 @@ class HomePage extends StatelessWidget {
       ),
       body:  Center(
         child: ListView(
-           children: [
+          children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 50),
-                const Text('Eloquéncia',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 45,
-                  ),
-                ),
-                const Text('La plateforme de cours en ligne pour apprendre à parler en public',
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: const WidgetStatePropertyAll<Color>(Color(0xFFFFC107)),
-                    foregroundColor: const WidgetStatePropertyAll<Color>(Colors.black),
-                    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                SizedBox(
+                  width: 350,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 70),
+                      const Text('Eloquéncia',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 45,
+                        ),
                       ),
-                    ),
-                  ),
-                  
-                  onPressed: () {
-                    const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFFFFCA2C)),
-                      foregroundColor: WidgetStatePropertyAll<Color>(Colors.black),
-                    );
-                  },
-                  child: const Text('Adhérer',
-                    style: TextStyle(
-                      fontSize: 18
-                    ),
+                      const SizedBox(height: 30),
+                      Text('La plateforme de cours en ligne pour apprendre à parler en public',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: const WidgetStatePropertyAll<Color>(Color(0xFFFFC107)),
+                              foregroundColor: const WidgetStatePropertyAll<Color>(Colors.black),
+                              shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+
+                            onPressed: () {
+                              const ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFFFFCA2C)),
+                                foregroundColor: WidgetStatePropertyAll<Color>(Colors.black),
+                              );
+                            },
+                            child:  Text('Adhérer',
+                              style: Theme.of(context).textTheme.bodyMedium
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: const WidgetStatePropertyAll<Color>(Color(0xFFFFC107)),
+                              foregroundColor: const WidgetStatePropertyAll<Color>(Colors.black),
+                              shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(horizontal: 11),
+                              ),
+                            ),
+                            
+                            onPressed: () {
+                              const ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFFFFCA2C)),
+                                foregroundColor: WidgetStatePropertyAll<Color>(Colors.black),
+                              );
+                            },
+                            child: Text('Connexion',
+                              style: Theme.of(context).textTheme.bodyMedium
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      Text('Étudiant·e ou mineur·e ? Vous pouvez faire une demande de réduction ici.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   )
-                ),
+                )
               ],
             ),
           ]
