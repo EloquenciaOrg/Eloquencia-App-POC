@@ -9,6 +9,10 @@ void main() {
 
 // Variables globales
 
+// Constantes pour les dimensions de l'application
+const double appBarHeight = 60;  // Hauteur de la barre de navigation
+const double objectWidth = 350;  // Largeur des objets
+
 // Constantes pour la taille des boutons
 const double largebuttonwidth = 250;  // Hauteur des gros boutons
 const double buttonwidth = 150;  // Hauteur des boutons normaux
@@ -31,20 +35,7 @@ const Color white = Color(0xFFF1EBF2);  // Couleur blanche
 appBarEloquencia() {  // Fonction pour créer la barre de navigation en haut de l'application
   return AppBar(
     backgroundColor: yellow,
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Image.asset(logo,
-          width: 44,
-        ),
-        const SizedBox(width: 10),
-        const Text('Eloquéncia',
-          style: TextStyle(
-            fontSize: 22,
-          ),
-        ),
-      ],
-    ),
+    title: logoEloquencia(22),  // Logo et titre de l'application
   );
 }
 
@@ -54,24 +45,29 @@ drawerHeaderEloquencia() {  // Fonction pour créer l'en-tête du menu de naviga
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Image.asset(logo,
-              width: 60,
-            ),
-            const SizedBox(width: 10),
-            const Text('Eloquéncia',
-              style: TextStyle(
-                fontSize: 30,
-              ),
-            ),
-          ],
-        ),
+        logoEloquencia(30)
       ],
     ),
   );
 }
 
+logoEloquencia(double fontSize) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+      Image.asset(logo,
+        width: fontSize * 2,
+      ),
+      const SizedBox(width: 10),
+      Text('Eloquéncia',
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold
+        ),
+      ),
+    ],
+  );
+}
 
 class MyApp extends StatelessWidget {  // L'application
   const MyApp({super.key});
@@ -82,6 +78,17 @@ class MyApp extends StatelessWidget {  // L'application
       home: const HomePage(),
       theme: ThemeData(
         textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 45,
+          ),
+          titleMedium: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 22,
+          ),
           bodyMedium: TextStyle(
             fontSize: 18,
           ),
@@ -170,19 +177,16 @@ class HomePage extends StatelessWidget {  // La page d'accueil
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 350,
+                  width: objectWidth,
                   child: Column(
                     children: [
                       const SizedBox(height: 60),  // Espace entre le haut de la page et le texte
-                      const SelectableText('Eloquéncia',  // Titre de la page d'accueil
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 45,
-                        ),
+                      SelectableText('Eloquéncia',  // Titre de la page d'accueil
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 30),  // Espace entre le titre et le texte
                       Text('La plateforme de cours en ligne pour apprendre à parler en public.',  // Slogan de la page d'accueil
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.headlineMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 30),  // Espace entre le slogan et les boutons d'adhésion et de connexion
@@ -192,7 +196,6 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                           ElevatedButton(  // Bouton d'adhésion
                             style: ButtonStyle(
                               backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
-                              foregroundColor: const WidgetStatePropertyAll<Color>(black),
                               shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
@@ -220,7 +223,6 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                           ElevatedButton(  // Bouton de connexion
                             style: ButtonStyle(
                               backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
-                              foregroundColor: const WidgetStatePropertyAll<Color>(black),
                               shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
@@ -249,10 +251,9 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                     ],
                   )
                 ),
-                
-                const SizedBox(height: 20),  // Espace entre le carrousel et le texte de réduction
+                const SizedBox(height: 20),  // Espace entre le bouton de connexion et le texte de réduction
                 SizedBox(
-                  width: 350,
+                  width: objectWidth,
                   child: Column(
                     children: [
                       Text('Étudiant·e ou mineur·e ? Vous pouvez faire une demande de réduction ici.',
@@ -263,8 +264,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                       ElevatedButton(  // Bouton de demande de réduction
                         // TODO : faire une page de demande de réduction
                         style: ButtonStyle(
-                          backgroundColor: const WidgetStatePropertyAll<Color>(Color(0xFFFFC107)),
-                          foregroundColor: const WidgetStatePropertyAll<Color>(black),
+                          backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
                           shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
@@ -281,7 +281,6 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                         onPressed: () {
                           const ButtonStyle(
                             backgroundColor: WidgetStatePropertyAll<Color>(yellow2),
-                            foregroundColor: WidgetStatePropertyAll<Color>(black),
                           );
                         },
                         child: Text('Demander une réduction',
@@ -308,16 +307,13 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                     enlargeFactor: 2
                   )
                 ),
-                const SizedBox(
-                  width: 350,
+                SizedBox(
+                  width: objectWidth,
                   child: Column(
                     children: [
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       Text('Articles à la une',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
                     ]
@@ -403,7 +399,7 @@ class JoinPage extends StatelessWidget {
   }
 }
 /*
-Future check() async {
+Future check() async {  TODO : custom "connexion perdue" page
   try {
     final result = await InternetAddress.lookup('google.com');
     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -514,7 +510,7 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
               },
             ),
             ListTile(
-              title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
+              title: Text('Connexion',
                 style: Theme.of(context).textTheme.bodyMedium), 
               onTap: () {
                 Navigator.push(
@@ -544,11 +540,32 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool isChecked = false;  // Statut de la case à cocher
+
+  @override
   Widget build(BuildContext context) {
+    Color getColor(Set<WidgetState> states) {
+      const Set<WidgetState> interactiveStates = <WidgetState>{
+        WidgetState.pressed,
+        WidgetState.hovered,
+        WidgetState.focused
+      };
+      if (states.any(interactiveStates.contains)) {
+        return yellow2;  // Couleur de la case à cocher si elle est pressée, survolée ou focalisée
+      }
+      else if (isChecked == true) {
+        return yellow;  // Couleur de la case à cocher si elle est cochée
+      }
+      return white;
+    }
     return Scaffold(
       appBar: appBarEloquencia(),
       endDrawer: Drawer(  // Menu de navigation à droite
@@ -599,7 +616,7 @@ class LoginPage extends StatelessWidget {
               },
             ),
             ListTile(
-              title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
+              title: Text('Connexion',
                 style: Theme.of(context).textTheme.bodyMedium), 
               onTap: () {
                 Navigator.pop(context);
@@ -609,62 +626,206 @@ class LoginPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: SizedBox(
-          width: 350,
-          child: Column(
-            children: [
-              const SizedBox(height: 60),  // Espace entre le haut de la page et le texte
-              ClipRRect(
-                borderRadius: BorderRadius.circular(25),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 300,
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: Border.all(color: yellow, width: 2),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 20),  // Espace entre le haut de la page et le texte
-                          Image.asset(logo,
-                            width: 50,
+        child: ListView(
+          children: [
+            SizedBox(
+              width: objectWidth,
+              child: Column(
+                children: [
+                  const SizedBox(height: 60),  // Espace entre le haut de la page et le contenu
+                  ClipRRect(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: objectWidth,
+                          decoration: BoxDecoration(
+                            color: white,
+                            //border: Border.all(color: black, width: 3),
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                          const Text('Connexion',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30,
-                            )
-                          ),
-                          const SizedBox(height: 20),  // Espace entre le haut de la page et le texte
-                          Container(
-                            width: 300,
-                            decoration: const BoxDecoration(
-                              color: white,
-                            ),
-                            child: TextField(  // Champ de texte pour la connexion
-                              decoration: InputDecoration(
-                                labelText: 'Nom d\'utilisateur',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(color: yellow, width: 2),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(color: yellow, width: 2),
-                                ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(25),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: objectWidth,
+                                      color: yellow,
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 20),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              logoEloquencia(25)
+                                            ]
+                                          ),
+                                          const SizedBox(height: 20),
+                                        ]
+                                      )
+                                    ),
+                                    const Divider(
+                                      color: black,
+                                      thickness: 3,
+                                      height: 0,
+                                    ),
+                                    Container(
+                                      width: objectWidth,
+                                      color: white,
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 30),
+                                          Text('Connexion',
+                                            style: Theme.of(context).textTheme.titleLarge,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        color: white,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            width: objectWidth - 50,
+                                            child: Column(
+                                              children: [
+                                                const SizedBox(height: 30),
+                                                TextField(  // Champ de texte pour la connexion
+                                                  cursorColor: black,
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Adresse e-mail',
+                                                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      borderSide: const BorderSide(color: yellow2, width: 2),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 30),
+                                                TextField(  // Champ de texte pour la connexion
+                                                  obscureText: true,  // Masquer le mot de passe
+                                                  cursorColor: black,
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Mot de passe',
+                                                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                    //helperText: '*Minimum 8 caractères dont\n1 majuscule, 1 chiffre et\n1 caractère spécial',  // TODO Déplacer dans le page de modification de mot de passe
+                                                    //helperStyle: const TextStyle(color: black),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      borderSide: const BorderSide(color: yellow2, width: 2),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 20),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Checkbox(
+                                                      checkColor: white,
+                                                      fillColor: WidgetStateProperty.resolveWith(getColor),
+                                                      value: isChecked,
+                                                      onChanged: (bool? value) {
+                                                        setState(() {
+                                                          isChecked = value!;  // Mettre à jour le statut de la case à cocher
+                                                        });
+                                                      },
+                                                    ),
+                                                    Text('Se souvenir de moi',
+                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 20),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: objectWidth,
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    ElevatedButton(  // Bouton de connexion
+                                                      style: ButtonStyle(
+                                                        backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                                        shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                          RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(5),
+                                                          ),
+                                                        ),
+                                                        padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                          EdgeInsets.symmetric(horizontal: 11),
+                                                        ),
+                                                        fixedSize: const WidgetStatePropertyAll<Size>(
+                                                          Size(buttonwidth - 40, buttonheight),
+                                                        ),
+                                                      ),
+                                                      
+                                                      onPressed: () {
+                                                        // TODO : faire la connexion
+                                                      },
+                                                      child: Text('Connexion',
+                                                        style: Theme.of(context).textTheme.bodyMedium
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),  // Espace horizontal entre les deux boutons
+                                                    ElevatedButton(  // Bouton de réinitialisation du mot de passe
+                                                      style: ButtonStyle(
+                                                        backgroundColor: const WidgetStatePropertyAll<Color>(white),
+                                                        shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                          RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            side: const BorderSide(color: black, width: 1),
+                                                          )
+                                                        ),
+                                                        padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                          EdgeInsets.symmetric(horizontal: 11),
+                                                        ),
+                                                        fixedSize: const WidgetStatePropertyAll<Size>(
+                                                          Size(buttonwidth + 40, buttonheight),
+                                                        ),
+                                                      ),
+                                                      
+                                                      onPressed: () {
+                                                        
+                                                      },
+                                                      child: Text('Mot de passe oublié',
+                                                        style: Theme.of(context).textTheme.bodyMedium
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 20),
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
                               ),
-                            ),
+                            ]
                           ),
-                        ]
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )
-            ],
-          ),
+                  )
+                ],
+              ),
+            ),
+          ]
         ),
       ),
     );
