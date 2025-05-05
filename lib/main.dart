@@ -92,24 +92,31 @@ drawerBehavior(context, pageID, buttonID) {
   }
   else {
     if (buttonID == 'Rejoindre') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinPage()));
     }
     /*else if (buttonID == 'Blog') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const BlogPage()));
     }
     else if (buttonID == 'Partenaires') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const PartnersPage()));
     }*/
     else if (buttonID == 'Réductions') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
     }
     /*else if (buttonID == 'Contact') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactPage()));
     }
     else if (buttonID == 'À propos') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutPage()));
     }*/
     else if (buttonID == 'Connexion') {
+      Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
     }
   }
