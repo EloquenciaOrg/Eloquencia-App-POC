@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+// ignore: unused_import
+import 'package:flutter/foundation.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 //import 'dart:io';  // Pour vérifier la connexion Internet
 
@@ -32,40 +34,144 @@ const Color black = Colors.black;  // Couleur noire
 const Color white = Color(0xFFF1EBF2);  // Couleur blanche
 
 // Fonctions globales
-appBarEloquencia() {  // Fonction pour créer la barre de navigation en haut de l'application
+appBarEloquencia(BuildContext context, pageID) {  // Fonction pour créer la barre de navigation en haut de l'application
   return AppBar(
     backgroundColor: yellow,
-    title: logoEloquencia(22),  // Logo et titre de l'application
+    title: logoEloquencia(context, pageID, 22),  // Logo et titre de l'application
   );
 }
 
-drawerHeaderEloquencia() {  // Fonction pour créer l'en-tête du menu de navigation
+drawerHeaderEloquencia(BuildContext context, pageID) {  // Fonction pour créer l'en-tête du menu de navigation
   return DrawerHeader(  // En-tête du menu de navigation
     decoration: const BoxDecoration(color: yellow), // quand bouton cliqué : 0xFFFFCA2C
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        logoEloquencia(30)
+        logoEloquencia(context, pageID, 30)
       ],
     ),
   );
 }
 
-logoEloquencia(double fontSize) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-      Image.asset(logo,
-        width: fontSize * 2,
-      ),
-      const SizedBox(width: 10),
-      Text('Eloquéncia',
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold
+logoEloquencia(BuildContext context, pageID, double fontSize) {
+  return GestureDetector(
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Image.asset(logo,
+          width: fontSize * 2,
         ),
-      ),
-    ],
+        const SizedBox(width: 10),
+        Text('Eloquéncia',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold
+          ),
+        ),
+      ],
+    ),
+    onTap: () {
+      if (pageID == 'home') {
+      }
+      else {
+        while (Navigator.canPop(context)) {  // Si je ne suis pas sur la page d'accueil, je retourne à la page d'accueil
+          Navigator.pop(context);  // Ferme le menu de navigation
+        }
+        
+      }
+    },
+  );
+}
+
+drawerBehavior(context, pageID, buttonID) {
+  /*Est-ce que le nom du bouton est le même que l'ID de la page sur laquelle je suis
+  si oui, Navigator.pop(context)
+  si non, Navigator.push(context, MaterialPageRoute(builder: (context) => const lapage)*/
+  if (pageID == buttonID) {
+    Navigator.pop(context);
+  }
+  else {
+    if (buttonID == 'Rejoindre') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinPage()));
+    }
+    /*else if (buttonID == 'Blog') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const BlogPage()));
+    }
+    else if (buttonID == 'Partenaires') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const PartnersPage()));
+    }*/
+    else if (buttonID == 'Réductions') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
+    }
+    /*else if (buttonID == 'Contact') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactPage()));
+    }
+    else if (buttonID == 'À propos') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutPage()));
+    }*/
+    else if (buttonID == 'Connexion') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    }
+  }
+}
+
+endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le menu de navigation à droite
+  return Drawer(
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        drawerHeaderEloquencia(context, pageID),  // En-tête du menu de navigation
+        ListTile(
+          title: Text('Rejoindre',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'Rejoindre');
+          },
+        ),
+        ListTile(
+          title: Text('Blog',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'Blog');
+          },
+        ),
+        ListTile(
+          title: Text('Partenaires',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'Partenaires');
+          },
+        ),
+        ListTile(
+          title: Text('Réductions',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'Réductions');
+          },
+        ),
+        ListTile(
+          title: Text('Contact',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'Contact');
+          },
+        ),
+        ListTile(
+          title: Text('À propos',
+            style: Theme.of(context).textTheme.bodyMedium),
+          onTap: () {
+            drawerBehavior(context, pageID, 'À propos');
+          },
+        ),
+        ListTile(
+          title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
+            style: Theme.of(context).textTheme.bodyMedium), 
+          onTap: () {
+            drawerBehavior(context, pageID, 'Connexion');
+          },
+        ),
+      ],
+    ),
   );
 }
 
@@ -99,77 +205,14 @@ class MyApp extends StatelessWidget {  // L'application
 }
 
 class HomePage extends StatelessWidget {  // La page d'accueil
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
+  final pageID = 'home';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(),  // Barre de navigation en haut
-      endDrawer: Drawer(  // Menu de navigation à droite
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            drawerHeaderEloquencia(),  // En-tête du menu de navigation
-            ListTile(
-              title: Text('Rejoindre',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const JoinPage()),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Blog',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Partenaires',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Réductions',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Contact',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('À propos',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
-                style: Theme.of(context).textTheme.bodyMedium), 
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
       body:  Center(
         child: ListView(
           children: [
@@ -279,9 +322,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                         ),
                         
                         onPressed: () {
-                          const ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll<Color>(yellow2),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
                         },
                         child: Text('Demander une réduction',
                           style: Theme.of(context).textTheme.bodyMedium
@@ -330,71 +371,13 @@ class HomePage extends StatelessWidget {  // La page d'accueil
 
 class JoinPage extends StatelessWidget {
   const JoinPage({super.key});
+  final pageID = 'Rejoindre';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(),
-      endDrawer: Drawer(  // Menu de navigation à droite
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            drawerHeaderEloquencia(),  // En-tête du menu de navigation
-            ListTile(
-              title: Text('Rejoindre',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Blog',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Partenaires',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Réductions',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Contact',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('À propos',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
-                style: Theme.of(context).textTheme.bodyMedium), 
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: appBarEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID),
     );
   }
 }
@@ -423,6 +406,7 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
 
   late WebViewController controller;  // Contrôleur de la WebView
   var loadingPercentage = 0;  // Pourcentage de chargement de la page
+  final pageID = 'HelloAsso';
 
   @override
   void initState() {
@@ -458,70 +442,8 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(),
-      endDrawer: Drawer(  // Menu de navigation à droite
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            drawerHeaderEloquencia(),  // En-tête du menu de navigation
-            ListTile(
-              title: Text('Rejoindre',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const JoinPage())
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Blog',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Partenaires',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Réductions',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Contact',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('À propos',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Connexion',
-                style: Theme.of(context).textTheme.bodyMedium), 
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: appBarEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID),
       body: Stack(
         children: [
           WebViewWidget(
@@ -549,6 +471,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool isChecked = false;  // Statut de la case à cocher
+  final pageID = "Connexion";
 
   @override
   Widget build(BuildContext context) {
@@ -567,64 +490,8 @@ class _LoginPageState extends State<LoginPage> {
       return white;
     }
     return Scaffold(
-      appBar: appBarEloquencia(),
-      endDrawer: Drawer(  // Menu de navigation à droite
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            drawerHeaderEloquencia(),  // En-tête du menu de navigation
-            ListTile(
-              title: Text('Rejoindre',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Blog',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Partenaires',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Réductions',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Contact',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('À propos',
-                style: Theme.of(context).textTheme.bodyMedium),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Connexion',
-                style: Theme.of(context).textTheme.bodyMedium), 
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: appBarEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
           children: [
@@ -659,7 +526,7 @@ class _LoginPageState extends State<LoginPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-                                              logoEloquencia(25)
+                                              logoEloquencia(context, pageID, 25)
                                             ]
                                           ),
                                           const SizedBox(height: 20),
@@ -828,6 +695,24 @@ class _LoginPageState extends State<LoginPage> {
           ]
         ),
       ),
+    );
+  }
+}
+
+class ReductionPage extends StatelessWidget {
+  const ReductionPage({super.key});
+  final pageID = 'Réductions';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Center(
+        child: ListView(
+
+        ),
+      )
     );
   }
 }
