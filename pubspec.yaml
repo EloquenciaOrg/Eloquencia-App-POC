@@ -28,22 +28,19 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  carousel_slider: ^5.0.0
+  cupertino_icons: ^1.0.8
+  file_picker: ^10.1.2
   flutter:
     sdk: flutter
   flutter_lints: ^2.0.0
   flutter_native_splash: ^2.4.6
-  carousel_slider: ^5.0.0
   webview_flutter: ^4.11.0
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  
-
 dev_dependencies:
+  flutter_launcher_icons: "^0.14.3"
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.14.3"
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -70,36 +67,32 @@ flutter_launcher_icons:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  
-flutter_native_splash:
-  # This package generates native code to customize Flutter's default white native splash screen
-  # with background color and splash image.
-  # Customize the parameters below, and run the following command in the terminal:
-  # dart run flutter_native_splash:create
-  # To restore Flutter's default white splash screen, run the following command in the terminal:
-  # dart run flutter_native_splash:remove
 
-  # color or background_image is the only required parameter.  Use color to set the background
-  # of your splash screen to a solid color.  Use background_image to set the background of your
-  # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
-  # size of the app. Only one parameter can be used, color and background_image cannot both be set.
-  #color: "#FFC107"
-  #image: assets/images/eloquencia_round.png
-  #color_dark: "#FFC107"
-  #image_dark: assets/images/eloquencia_round.png
-
-  #android_12:
-  #  image: assets/images/eloquencia_round.png
-  #  color: "#FFC107"
-  #  icon_background_color: "#FFC107"
-  #  image_dark: assets/images/eloquencia_round.png
-  #  color_dark: "#FFC107"
-  #  icon_background_color_dark: "#FFC107"
-  #fullscreen: true
-
+flutter_native_splash: null
+# This package generates native code to customize Flutter's default white native splash screen
+# with background color and splash image.
+# Customize the parameters below, and run the following command in the terminal:
+# dart run flutter_native_splash:create
+# To restore Flutter's default white splash screen, run the following command in the terminal:
+# dart run flutter_native_splash:remove
+# color or background_image is the only required parameter.  Use color to set the background
+# of your splash screen to a solid color.  Use background_image to set the background of your
+# splash screen to a png image.  This is useful for gradients. The image will be stretch to the
+# size of the app. Only one parameter can be used, color and background_image cannot both be set.
+#color: "#FFC107"
+#image: assets/images/eloquencia_round.png
+#color_dark: "#FFC107"
+#image_dark: assets/images/eloquencia_round.png
+#android_12:
+#  image: assets/images/eloquencia_round.png
+#  color: "#FFC107"
+#  icon_background_color: "#FFC107"
+#  image_dark: assets/images/eloquencia_round.png
+#  color_dark: "#FFC107"
+#  icon_background_color_dark: "#FFC107"
+#fullscreen: true
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -112,13 +105,10 @@ flutter:
   assets:
     - assets/images/
   #   - images/a_dot_ham.jpeg
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

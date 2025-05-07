@@ -1,15 +1,22 @@
+import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-//import 'dart:io';  // Pour vérifier la connexion Internet
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';  // Pour vérifier la connexion Internet
 
 void main() {
   runApp(const MyApp());
 }
 
 // Variables globales
+
+bool filePicked = false;
+
+// Constantes globales
 
 // Constantes pour les dimensions de l'application
 const double appBarHeight = 60;  // Hauteur de la barre de navigation
@@ -18,7 +25,7 @@ const double objectWidth = 350;  // Largeur des objets
 // Constantes pour la taille des boutons
 const double largebuttonwidth = 250;  // Hauteur des gros boutons
 const double buttonwidth = 150;  // Hauteur des boutons normaux
-const double buttonheight = 10;  // Largeur des boutons normaux
+const double buttonheight = 40;  // Largeur des boutons normaux
 
 // Constantes pour les images
 const String logo = 'assets/images/eloquencia_round.png';
@@ -193,18 +200,30 @@ class MyApp extends StatelessWidget {  // L'application
         textTheme: const TextTheme(
           titleLarge: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 45,
+            fontSize: 45
           ),
           titleMedium: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 30,
+            fontSize: 30
+          ),
+          titleSmall: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 25
           ),
           headlineMedium: TextStyle(
-            fontSize: 22,
+            fontStyle: FontStyle.italic,
+            fontSize: 22
+          ),
+          headlineSmall: TextStyle(
+            fontStyle: FontStyle.italic,
+            fontSize: 20
           ),
           bodyMedium: TextStyle(
-            fontSize: 18,
+            fontSize: 18
           ),
+          bodySmall: TextStyle(
+            fontSize: 14
+          )
         ),
       )
     );
@@ -237,7 +256,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                       const SizedBox(height: 30),  // Espace entre le titre et le texte
                       Text('La plateforme de cours en ligne pour apprendre à parler en public.',  // Slogan de la page d'accueil
                         style: Theme.of(context).textTheme.headlineMedium,
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.justify,
                       ),
                       const SizedBox(height: 30),  // Espace entre le slogan et les boutons d'adhésion et de connexion
                       Row(
@@ -254,7 +273,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                               padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                 EdgeInsets.symmetric(horizontal: 11),
                               ),
-                              fixedSize: const WidgetStatePropertyAll<Size>(
+                              minimumSize: const WidgetStatePropertyAll<Size>(
                                 Size(buttonwidth, buttonheight),
                               ),
                             ),
@@ -281,7 +300,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                               padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                 EdgeInsets.symmetric(horizontal: 11),
                               ),
-                              fixedSize: const WidgetStatePropertyAll<Size>(
+                              minimumSize: const WidgetStatePropertyAll<Size>(
                                 Size(buttonwidth, buttonheight),
                               ),
                             ),
@@ -301,14 +320,14 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                     ],
                   )
                 ),
-                const SizedBox(height: 20),  // Espace entre le bouton de connexion et le texte de réduction
+                const SizedBox(height: 30),  // Espace entre le bouton de connexion et le texte de réduction
                 SizedBox(
                   width: objectWidth,
                   child: Column(
                     children: [
                       Text('Étudiant·e ou mineur·e ? Vous pouvez faire une demande de réduction ici.',
                         style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.justify,
                       ),
                       const SizedBox(height: 20),  // Espace entre le texte et le bouton de demande de réduction
                       ElevatedButton(  // Bouton de demande de réduction
@@ -323,7 +342,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                           padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                             EdgeInsets.symmetric(horizontal: 11),
                           ),
-                          fixedSize: const WidgetStatePropertyAll<Size>(
+                          minimumSize: const WidgetStatePropertyAll<Size>(
                             Size(largebuttonwidth, buttonheight),
                           ),
                         ),
@@ -385,13 +404,63 @@ class JoinPage extends StatelessWidget {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID),
       endDrawer: endDrawerEloquencia(context, pageID),
+      body: ListView(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              panEnabled: false,
+              child: SizedBox(
+                width: objectWidth,
+                child: Column(
+                  children: [
+                    const SizedBox(height: appBarHeight),
+                    Text('Pourquoi nous rejoindre ?',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Text('Découvrez les valeurs, les engagements et les avantages de l\'association Eloquéncia.',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.justify,
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(
+                      color: black,
+                      thickness: 3,
+                      height: 0,
+                    ),
+                    const SizedBox(height: 20),
+                    Text('Une équipe de bénévoles passionnés',
+                      style: Theme.of(context).textTheme.titleSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Image.asset('assets/images/recrutement_1.png',
+                    height: objectWidth,
+                    ),
+                    const SizedBox(height: 20),
+                    Text('Eloquéncia, fondée par Marouan JLASSI, un lycéen passionné, est bien plus qu\'une simple association. C\'est un projet dynamique et social,'
+                      ' ouvert à toutes les personnes motivées, quels que soient leurs parcours. En nous rejoignant, vous aurez l\'opportunité d\'enrichir vos compétences dans des domaines variés :'
+                      ' maîtrise de la prise de parole en public, développement de vos aptitudes sociales, approfondissement de vos connaissances dans le domaine qui vous passionne, et bien plus encore.'
+                      ' Vous participerez à un projet ambitieux, porteur de sens et rempli de défis ! Venez vivre une aventure humaine unique,'
+                      ' tissez des liens forts et devenez un acteur actif de la vie associative !',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.justify,
+                    ),
+                  ]
+                ),
+              ),
+            ),
+          ),
+        ]
+      ),
     );
   }
 }
 /*
 Future check() async {  TODO : custom "connexion perdue" page
   try {
-    final result = await InternetAddress.lookup('google.com');
+    final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
       connectionStatus = true;
       print("connected $connectionStatus");
@@ -533,7 +602,9 @@ class _LoginPageState extends State<LoginPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-                                              logoEloquencia(context, pageID, 25)
+                                              Text('Connexion',
+                                              style: Theme.of(context).textTheme.titleLarge,
+                                          ),
                                             ]
                                           ),
                                           const SizedBox(height: 20),
@@ -544,18 +615,6 @@ class _LoginPageState extends State<LoginPage> {
                                       color: black,
                                       thickness: 3,
                                       height: 0,
-                                    ),
-                                    Container(
-                                      width: objectWidth,
-                                      color: white,
-                                      child: Column(
-                                        children: [
-                                          const SizedBox(height: 30),
-                                          Text('Connexion',
-                                            style: Theme.of(context).textTheme.titleLarge,
-                                          ),
-                                        ],
-                                      ),
                                     ),
                                     Container(
                                       decoration: const BoxDecoration(
@@ -569,12 +628,16 @@ class _LoginPageState extends State<LoginPage> {
                                               children: [
                                                 const SizedBox(height: 30),
                                                 TextField(  // Champ de texte pour la connexion
+                                                  onTapOutside: (event) {
+                                                    FocusScope.of(context).unfocus();
+                                                  },
                                                   cursorColor: black,
                                                   decoration: InputDecoration(
                                                     labelText: 'Adresse e-mail',
                                                     labelStyle: Theme.of(context).textTheme.bodyMedium,
-                                                    border: OutlineInputBorder(
+                                                    enabledBorder: OutlineInputBorder(
                                                       borderRadius: BorderRadius.circular(10),
+                                                      borderSide: const BorderSide(color: black, width: 1),
                                                     ),
                                                     focusedBorder: OutlineInputBorder(
                                                       borderRadius: BorderRadius.circular(10),
@@ -584,6 +647,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 ),
                                                 const SizedBox(height: 30),
                                                 TextField(  // Champ de texte pour la connexion
+                                                  onTapOutside: (event) {
+                                                    FocusScope.of(context).unfocus();
+                                                  },
                                                   obscureText: true,  // Masquer le mot de passe
                                                   cursorColor: black,
                                                   decoration: InputDecoration(
@@ -591,8 +657,9 @@ class _LoginPageState extends State<LoginPage> {
                                                     labelStyle: Theme.of(context).textTheme.bodyMedium,
                                                     //helperText: '*Minimum 8 caractères dont\n1 majuscule, 1 chiffre et\n1 caractère spécial',  // TODO Déplacer dans le page de modification de mot de passe
                                                     //helperStyle: const TextStyle(color: black),
-                                                    border: OutlineInputBorder(
+                                                    enabledBorder: OutlineInputBorder(
                                                       borderRadius: BorderRadius.circular(10),
+                                                      borderSide: const BorderSide(color: black, width: 1),
                                                     ),
                                                     focusedBorder: OutlineInputBorder(
                                                       borderRadius: BorderRadius.circular(10),
@@ -600,7 +667,7 @@ class _LoginPageState extends State<LoginPage> {
                                                     ),
                                                   ),
                                                 ),
-                                                const SizedBox(height: 20),
+                                                const SizedBox(height: 15),
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.start,
                                                   children: [
@@ -614,12 +681,19 @@ class _LoginPageState extends State<LoginPage> {
                                                         });
                                                       },
                                                     ),
-                                                    Text('Se souvenir de moi',
-                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                    GestureDetector(
+                                                      child: Text('Se souvenir de moi',
+                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                      ),
+                                                      onTap: () {
+                                                        setState(() {
+                                                          isChecked = !isChecked;  // Inverser le statut de la case à cocher
+                                                        });
+                                                      },
                                                     ),
                                                   ],
                                                 ),
-                                                const SizedBox(height: 20),
+                                                const SizedBox(height: 15),
                                               ],
                                             ),
                                           ),
@@ -641,7 +715,7 @@ class _LoginPageState extends State<LoginPage> {
                                                         padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                                           EdgeInsets.symmetric(horizontal: 11),
                                                         ),
-                                                        fixedSize: const WidgetStatePropertyAll<Size>(
+                                                        minimumSize: const WidgetStatePropertyAll<Size>(
                                                           Size(buttonwidth - 40, buttonheight),
                                                         ),
                                                       ),
@@ -666,7 +740,7 @@ class _LoginPageState extends State<LoginPage> {
                                                         padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                                           EdgeInsets.symmetric(horizontal: 11),
                                                         ),
-                                                        fixedSize: const WidgetStatePropertyAll<Size>(
+                                                        minimumSize: const WidgetStatePropertyAll<Size>(
                                                           Size(buttonwidth + 40, buttonheight),
                                                         ),
                                                       ),
@@ -706,6 +780,29 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+Future<String> pickFile() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles();
+  if (result != null) {
+    File file = File(result.files.single.path!);
+    String fileName = file.toString().split(r'/').last;  // Récupérer le nom du fichier
+    filePicked = true;
+    return fileName;  // Retourner le nom du fichier
+  } else {
+    // User canceled the picker
+    filePicked = false;  // Aucune sélection de fichier
+    return '';
+  }
+}
+//TODO
+/*
+pickFileText() {
+  if (file != null) {
+    return Text(fileName);
+  } else {
+    return const Text('Choisir un fichier');
+  }
+} */
+
 class ReductionPage extends StatelessWidget {
   const ReductionPage({super.key});
   final pageID = 'Réductions';
@@ -717,9 +814,223 @@ class ReductionPage extends StatelessWidget {
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
-
+          children: [
+            SizedBox(
+              width: objectWidth,
+              child: Column(
+                children: [
+                  const SizedBox(height: 60),  // Espace entre le haut de la page et le contenu
+                  ClipRRect(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: objectWidth,
+                          decoration: BoxDecoration(
+                            color: white,
+                            //border: Border.all(color: black, width: 3),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(25),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: objectWidth,
+                                      color: yellow,
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 20),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text('Réduction',
+                                                style: Theme.of(context).textTheme.titleLarge,
+                                              ),
+                                            ]
+                                          ),
+                                          const SizedBox(height: 20),
+                                        ]
+                                      )
+                                    ),
+                                    const Divider(
+                                      color: black,
+                                      thickness: 3,
+                                      height: 0,
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        color: white,
+                                      ),
+                                      child: SizedBox(
+                                        width: objectWidth - 50,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 30),
+                                            TextField(  // Champ de texte pour la connexion
+                                              onTapOutside: (event) {
+                                                FocusScope.of(context).unfocus();
+                                              },
+                                              cursorColor: black,
+                                              decoration: InputDecoration(
+                                                labelText: 'Nom complet',
+                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: black, width: 1),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: yellow2, width: 2),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 30),
+                                            TextField(  // Champ de texte pour la connexion
+                                              onTapOutside: (event) {
+                                                FocusScope.of(context).unfocus();
+                                              },
+                                              cursorColor: black,
+                                              decoration: InputDecoration(
+                                                labelText: 'Adresse e-mail',
+                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                //helperText: '*Minimum 8 caractères dont\n1 majuscule, 1 chiffre et\n1 caractère spécial',  // TODO Déplacer dans le page de modification de mot de passe
+                                                //helperStyle: const TextStyle(color: black),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: black, width: 1),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: yellow2, width: 2),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            Text('Justificatif d\'identité/Certificat de scolarité',
+                                              style: Theme.of(context).textTheme.bodySmall,
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(color: black, width: 1),
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                              height: 55,
+                                              child: Row(
+                                                children: [
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                                      shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                        RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ),
+                                                      ),
+                                                      padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                        EdgeInsets.symmetric(horizontal: 11),
+                                                      ),
+                                                      minimumSize: const WidgetStatePropertyAll(
+                                                        Size(buttonwidth - 40, 55)),
+                                                    ),
+                                                    
+                                                    onPressed: () => pickFile(),
+                                                    child: Text('Parcourir...',  // TODO filePicked ? const Text('Choisir un fichier') : Text(fileName)),
+                                                      style: Theme.of(context).textTheme.bodyMedium)
+                                                  ),
+                                                  const SizedBox(width: 7),  // Espace horizontal entre le bouton et le texte
+                                                  GestureDetector(
+                                                    child: Text('5Mo max (PNG, JPG)',
+                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                    ),
+                                                    onTap: () {
+                                                      pickFile();  // Ouvrir le sélecteur de fichiers
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                ElevatedButton(  // Bouton de connexion
+                                                  style: ButtonStyle(
+                                                    backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                                    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(5),
+                                                      ),
+                                                    ),
+                                                    padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                      EdgeInsets.symmetric(horizontal: 11),
+                                                    ),
+                                                    minimumSize: const WidgetStatePropertyAll<Size>(
+                                                      Size(buttonwidth - 40, buttonheight),
+                                                    ),
+                                                    maximumSize: const WidgetStatePropertyAll<Size>(
+                                                      Size(buttonwidth - 40, buttonheight),
+                                                    ),
+                                                  ),
+                                                  
+                                                  onPressed: () {
+                                                    // TODO : faire la connexion
+                                                  },
+                                                  child: Text('Connexion',
+                                                    style: Theme.of(context).textTheme.bodyMedium
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),  // Espace horizontal entre les deux boutons
+                                                ElevatedButton(  // Bouton de réinitialisation du mot de passe
+                                                  style: ButtonStyle(
+                                                    backgroundColor: const WidgetStatePropertyAll<Color>(white),
+                                                    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(5),
+                                                        side: const BorderSide(color: black, width: 1),
+                                                      )
+                                                    ),
+                                                    padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                      EdgeInsets.symmetric(horizontal: 6),
+                                                    ),
+                                                    minimumSize: const WidgetStatePropertyAll<Size>(
+                                                      Size(buttonwidth + 30, buttonheight),
+                                                    ),
+                                                    maximumSize: const WidgetStatePropertyAll<Size>(
+                                                      Size(buttonwidth + 30, buttonheight),
+                                                    ),
+                                                  ),
+                                                  
+                                                  onPressed: () {
+                                                    
+                                                  },
+                                                  child: Text('Mot de passe oublié',
+                                                    style: Theme.of(context).textTheme.bodyMedium
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 20),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ]
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ]
         ),
-      )
+      ),
     );
   }
 }
