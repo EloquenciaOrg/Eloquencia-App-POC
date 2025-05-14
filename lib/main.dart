@@ -102,7 +102,7 @@ smallWidth(context) {
 appBarEloquencia(BuildContext context, pageID) {  // Fonction pour créer la barre de navigation en haut de l'application
   return AppBar(
     backgroundColor: yellow,
-    title: logoEloquencia(context, pageID, 22),  // Logo et titre de l'application
+    title: logoEloquencia(context, pageID, 22, ' - $pageID'),  // Logo et titre de l'application
   );
 }
 
@@ -118,7 +118,7 @@ drawerHeaderEloquencia(BuildContext context, pageID) {  // Fonction pour créer 
   );
 }
 
-logoEloquencia(BuildContext context, pageID, double fontSize) {
+logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '']) {
   return GestureDetector(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -133,10 +133,16 @@ logoEloquencia(BuildContext context, pageID, double fontSize) {
             fontWeight: FontWeight.bold
           ),
         ),
+        Text(suffix,
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: fontSize*0.85
+          ),
+        )
       ],
     ),
     onTap: () {
-      if (pageID == 'home') {
+      if (pageID == 'Accueil') {
       }
       else {
         while (Navigator.canPop(context)) {  // Si je ne suis pas sur la page d'accueil, je retourne à la page d'accueil
@@ -159,14 +165,14 @@ drawerBehavior(context, pageID, buttonID) {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinPage()));
     }
-    /*else if (buttonID == 'Blog') {
+    else if (buttonID == 'Blog') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const BlogPage()));
     }
     else if (buttonID == 'Partenaires') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const PartnersPage()));
-    }*/
+    }
     else if (buttonID == 'Réductions') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
@@ -175,11 +181,10 @@ drawerBehavior(context, pageID, buttonID) {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactPage()));
     }
-    /*
     else if (buttonID == 'À propos') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutPage()));
-    }*/
+    }
     else if (buttonID == 'Connexion') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
@@ -247,6 +252,29 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
   );
 }
 
+Future<String> pickFile() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles();
+  if (result != null) {
+    File file = File(result.files.single.path!);
+    String fileName = file.toString().split(r'/').last;  // Récupérer le nom du fichier
+    filePicked = true;
+    return fileName;  // Retourner le nom du fichier
+  } else {
+    // User canceled the picker
+    filePicked = false;  // Aucune sélection de fichier
+    return '';
+  }
+}
+//TODO
+/*
+pickFileText() {
+  if (file != null) {
+    return Text(fileName);
+  } else {
+    return const Text('Choisir un fichier');
+  }
+} */
+
 class MyApp extends StatelessWidget {  // L'application
   const MyApp({super.key});
 
@@ -290,7 +318,7 @@ class MyApp extends StatelessWidget {  // L'application
 
 class HomePage extends StatelessWidget {  // La page d'accueil
   const HomePage({super.key});
-  final pageID = 'home';
+  final pageID = 'Accueil';
 
   @override
   Widget build(BuildContext context) {
@@ -419,10 +447,10 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                 CarouselSlider(  // Carrousel d'images
                   items: [
                     Image.asset('assets/images/carousel.jpg',
-                      width: 400,
+                      width: getWidth(context, 1.02858),
                     ),
                     Image.asset('assets/images/carousel1.jpg',
-                      width: 400,
+                      width: getWidth(context, 1.02858),
                     )
                   ],
                   options: CarouselOptions(
@@ -493,7 +521,7 @@ class JoinPage extends StatelessWidget {
                 ),
                 SizedBox(height: mediumHeight(context)),
                 Image.asset('assets/images/recrutement_1.png',
-                height: objectWidth(context) - 50,
+                width: objectWidth(context) - 50,
                 ),
                 SizedBox(height: largeHeight(context)),
                 RichText(
@@ -657,7 +685,7 @@ class JoinPage extends StatelessWidget {
                 ),
                 SizedBox(height: mediumHeight(context)),
                 Image.asset('assets/images/recrutement_2.png',
-                height: objectWidth(context) - 50,
+                width: objectWidth(context) - 50,
                 ),
                 SizedBox(height: largeHeight(context)),
                 RichText(
@@ -834,7 +862,7 @@ class JoinPage extends StatelessWidget {
                 ),
                 SizedBox(height: mediumHeight(context)),
                 Image.asset('assets/images/recrutement_3.png',
-                height: objectWidth(context) - 50,
+                width: objectWidth(context) - 50,
                 ),
                 SizedBox(height: largeHeight(context)),
                 RichText(
@@ -1003,6 +1031,503 @@ class JoinPage extends StatelessWidget {
     );
   }
 }
+
+class BlogPage extends StatefulWidget {
+  const BlogPage({super.key});
+
+  @override
+  State<BlogPage> createState() => _BlogPageState();
+}
+
+class _BlogPageState extends State<BlogPage> {
+  final pageID = 'Blog';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Center()
+    );
+  }
+}
+
+class PartnersPage extends StatefulWidget {
+  const PartnersPage({super.key});
+
+  @override
+  State<PartnersPage> createState() => _PartnersPageState();
+}
+
+class _PartnersPageState extends State<PartnersPage> {
+  final pageID = 'Partenaires';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Center()
+    );
+  }
+}
+
+class ContactPage extends StatefulWidget {
+  const ContactPage({super.key});
+
+  @override
+  State<ContactPage> createState() => _ContactPageState();
+}
+
+class _ContactPageState extends State<ContactPage> {
+  final pageID = 'Contact';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Center(
+        child: ListView(
+          children: [
+            SizedBox(
+              width: objectWidth(context),
+              child: Column(
+                children: [
+                  SizedBox(height: appBarHeight(context)),  // Espace entre le haut de la page et le contenu
+                  ClipRRect(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: objectWidth(context),
+                          decoration: BoxDecoration(
+                            color: white,
+                            //border: Border.all(color: black, width: 3),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(25),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: objectWidth(context),
+                                      color: yellow,
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: mediumHeight(context)),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text('Contact',
+                                                style: Theme.of(context).textTheme.titleLarge,
+                                              ),
+                                            ]
+                                          ),
+                                          SizedBox(height: mediumHeight(context)),
+                                        ]
+                                      )
+                                    ),
+                                    const Divider(
+                                      color: black,
+                                      thickness: 3,
+                                      height: 0,
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        color: white,
+                                      ),
+                                      child: SizedBox(
+                                        width: objectWidth(context) - 50,
+                                        child: Column(
+                                          children: [
+                                            SizedBox(height: largeHeight(context)),
+                                            TextField(  // Champ de texte pour la connexion
+                                              onTapOutside: (event) {
+                                                FocusScope.of(context).unfocus();
+                                              },
+                                              cursorColor: black,
+                                              decoration: InputDecoration(
+                                                labelText: 'Nom',
+                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: black, width: 1),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: yellow2, width: 2),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: largeHeight(context)),
+                                            TextField(  // Champ de texte pour la connexion
+                                              onTapOutside: (event) {
+                                                FocusScope.of(context).unfocus();
+                                              },
+                                              cursorColor: black,
+                                              decoration: InputDecoration(
+                                                labelText: 'Adresse e-mail',
+                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                //helperText: '*Minimum 8 caractères dont\n1 majuscule, 1 chiffre et\n1 caractère spécial',  // TODO Déplacer dans le page de modification de mot de passe
+                                                //helperStyle: const TextStyle(color: black),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: black, width: 1),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: yellow2, width: 2),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: largeHeight(context)),
+                                            SizedBox(
+                                              height: getHeight(context)/3,
+                                              child: TextField(  // Champ de texte pour la connexion
+                                                textAlignVertical: TextAlignVertical.top,
+                                                expands: true,
+                                                maxLines: null,
+                                                cursorColor: black,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Message',
+                                                  labelStyle: Theme.of(context).textTheme.bodyMedium,
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderSide: const BorderSide(color: black, width: 1),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderSide: const BorderSide(color: yellow2, width: 2),
+                                                  ),
+                                                ),
+                                                onTapOutside: (event) {
+                                                  FocusScope.of(context).unfocus();
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(height: mediumHeight(context)),
+                                            ElevatedButton(  // Bouton de connexion
+                                              style: ButtonStyle(
+                                                backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(5),
+                                                  ),
+                                                ),
+                                                padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                                  EdgeInsets.symmetric(horizontal: 11),
+                                                ),
+                                                minimumSize: const WidgetStatePropertyAll<Size>(
+                                                  Size(buttonwidth - 40, buttonheight),
+                                                ),
+                                                maximumSize: const WidgetStatePropertyAll<Size>(
+                                                  Size(buttonwidth - 40, buttonheight),
+                                                ),
+                                              ),
+                                              
+                                              onPressed: () {
+                                                // TODO : faire la connexion
+                                              },
+                                              child: Text('Envoyer',
+                                                style: Theme.of(context).textTheme.bodyMedium
+                                              ),
+                                            ),
+                                            SizedBox(height: mediumHeight(context)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ]
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ]
+        ),
+      )
+    );
+  }
+}
+
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+  final pageID = 'À propos';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Center(
+        child: ListView(
+          children: [
+            Column(
+              children: [
+                SizedBox(
+                  width: objectWidth(context),
+                  child: Column(
+                    children: [
+                      SizedBox(height: appBarHeight(context)),
+                      Text('Eloquéncia',
+                        style: Theme.of(context).textTheme.titleLarge
+                      ),
+                      SizedBox(height: mediumHeight(context)),
+                      Text('L\'art de convaincre,\nle plaisir de parler !',
+                        style: Theme.of(context).textTheme.headlineLarge
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      RichText(
+                        textAlign: TextAlign.justify,
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: const <TextSpan>[
+                            TextSpan(text: 'L’Association '),
+                            TextSpan(
+                              text: 'Eloquéncia',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' (loi 1901) est une jeune association fondée par '),
+                            TextSpan(
+                              text: 'Marouan Jlassi',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' à '),
+                            TextSpan(
+                              text: 'Berre l’Étang',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' qui a pour but d\'enseigner l\''),
+                            TextSpan(
+                              text: 'art oratoire',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' dans le milieu local. Elle a pour conviction d\''),
+                            TextSpan(
+                              text: 'aider',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' les personnes qui souhaitent développer et perfectionner leur '),
+                            TextSpan(
+                              text: 'expression orale quotidienne',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ', '),
+                            TextSpan(
+                              text: 'professionnelle',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' ou '),
+                            TextSpan(
+                              text: 'scolaire',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ', notamment pour la préparation d\''),
+                            TextSpan(
+                              text: 'entretiens d\'embauche',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: ' ou d\''),
+                            TextSpan(
+                              text: 'examens oraux',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow3
+                              )
+                            ),
+                            TextSpan(text: '.'),
+                          ]
+                        )
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      Text('Notre Histoire',
+                        style: Theme.of(context).textTheme.titleMedium
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      RichText(
+                        textAlign: TextAlign.justify,
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: const <TextSpan>[
+                            TextSpan(text: 'Souhaitant préparer sa participation à un concours d’éloquence, Marouan s’est entretenu au cours d’une conversation téléphonique avec le Maître de l’Éloquence, Bill François, qui lui a suggéré que la création d’une association consacrée à l’art oratoire serait une aventure enrichissante et instructive. C’est ainsi que Marouan a proposé à son ami Gaëtan, actuel vice-président de l’association de l’aider à mettre en place ce projet ambitieux.')
+                          ]
+                        )
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      Text('Notre Parcours',
+                        style: Theme.of(context).textTheme.titleMedium
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      IntrinsicHeight(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const VerticalDivider(
+                              color: yellow,
+                              thickness: 3,
+                              width: 0,
+                            ),
+                            SizedBox(width: getWidth(context, 16)),
+                            SizedBox(
+                              width: objectWidth(context) - 30,
+                              child: RichText(
+                                textAlign: TextAlign.left,
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  children: const <TextSpan>[
+                                    TextSpan(text: 'Septembre 2023',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nPremières réflexions sur l\'association\n'
+                                    ),
+                                    TextSpan(text: '\nFévrier 2024',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nDéclaration en préfecture\n'
+                                    ),
+                                    TextSpan(text: '\nSeptembre 2024',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nLancement officiel\n'
+                                    ),
+                                    TextSpan(text: '\nNovembre 2024',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nSignature du premier partenariat avec EVA\n'
+                                    ),
+                                    TextSpan(text: '\nFévrier 2025',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nPremier anniversaire de l\'association\n'
+                                    ),
+                                    TextSpan(text: '\nMars 2025',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: yellow3
+                                      ),
+                                    ),
+                                    TextSpan(text: '\nPremière participation d\'Eloquéncia en tant que présentatrice de concours d\'éloquence'
+                                    ),
+                                  ]
+                                )
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      Text('Notre Logo',
+                        style: Theme.of(context).textTheme.titleMedium
+                      ),
+                      SizedBox(height: mediumHeight(context)),
+                      Text('La belle histoire du logo d\'Eloquéncia\n',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      Image.asset(logo, width: getWidth(context, 4)),
+                      SizedBox(height: largeHeight(context)),
+                      const Text('Le logo d\'Eloquéncia a tout d\'abord été \"Eloquéncia, première Edition\" car le but premier était seulement d\'accompagner les élèves de collèges et lycées à un concours de fin d\'année. Cependant, le président a par la suite préféré que l\'association soit plus accessible et qu\'elle puisse proposer des activités plus diverses et concerner un plus large public.',
+                        textAlign: TextAlign.justify,
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: getWidth(context, 12), vertical: getWidth(context, 12)),
+                          color: yellow,
+                          child: Column(
+                            children: [
+                              Text('Signification d\'Eloquéncia',
+                                style: Theme.of(context).textTheme.headlineMedium,
+                              ),
+                              SizedBox(height: mediumHeight(context)),
+                              RichText(
+                                textAlign: TextAlign.justify,
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  children: const <TextSpan>[
+                                    TextSpan(
+                                      text: 'Le nom '
+                                    ),
+                                    TextSpan(
+                                      text: 'Eloquéncia',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold
+                                      )
+                                    ),
+                                    TextSpan(
+                                      text: ' est inspiré du provençal dans le but de rendre hommage à notre culture locale que nous avons à cœur de préserver.'
+                                    ),
+                                  ]
+                                )
+                              ),
+                            ],
+                          )
+                        ),
+                      )
+                    ],
+                  ),
+                ),          
+              ],
+            )
+          ],
+        ),
+      )
+    );
+  }
+}
+
 /*
 Future check() async {  TODO : custom "connexion perdue" page
   try {
@@ -1326,29 +1851,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-Future<String> pickFile() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles();
-  if (result != null) {
-    File file = File(result.files.single.path!);
-    String fileName = file.toString().split(r'/').last;  // Récupérer le nom du fichier
-    filePicked = true;
-    return fileName;  // Retourner le nom du fichier
-  } else {
-    // User canceled the picker
-    filePicked = false;  // Aucune sélection de fichier
-    return '';
-  }
-}
-//TODO
-/*
-pickFileText() {
-  if (file != null) {
-    return Text(fileName);
-  } else {
-    return const Text('Choisir un fichier');
-  }
-} */
-
 class ReductionPage extends StatefulWidget {
   const ReductionPage({super.key});
 
@@ -1557,193 +2059,6 @@ class _ReductionPageState extends State<ReductionPage> {
           ]
         ),
       ),
-    );
-  }
-}
-
-class ContactPage extends StatefulWidget {
-  const ContactPage({super.key});
-
-  @override
-  State<ContactPage> createState() => _ContactPageState();
-}
-
-class _ContactPageState extends State<ContactPage> {
-  final pageID = 'Contact';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),
-      body: Center(
-        child: ListView(
-          children: [
-            SizedBox(
-              width: objectWidth(context),
-              child: Column(
-                children: [
-                  SizedBox(height: appBarHeight(context)),  // Espace entre le haut de la page et le contenu
-                  ClipRRect(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: objectWidth(context),
-                          decoration: BoxDecoration(
-                            color: white,
-                            //border: Border.all(color: black, width: 3),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(25),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: objectWidth(context),
-                                      color: yellow,
-                                      child: Column(
-                                        children: [
-                                          SizedBox(height: mediumHeight(context)),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text('Contact',
-                                                style: Theme.of(context).textTheme.titleLarge,
-                                              ),
-                                            ]
-                                          ),
-                                          SizedBox(height: mediumHeight(context)),
-                                        ]
-                                      )
-                                    ),
-                                    const Divider(
-                                      color: black,
-                                      thickness: 3,
-                                      height: 0,
-                                    ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        color: white,
-                                      ),
-                                      child: SizedBox(
-                                        width: objectWidth(context) - 50,
-                                        child: Column(
-                                          children: [
-                                            SizedBox(height: largeHeight(context)),
-                                            TextField(  // Champ de texte pour la connexion
-                                              onTapOutside: (event) {
-                                                FocusScope.of(context).unfocus();
-                                              },
-                                              cursorColor: black,
-                                              decoration: InputDecoration(
-                                                labelText: 'Nom',
-                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: black, width: 1),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: yellow2, width: 2),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: largeHeight(context)),
-                                            TextField(  // Champ de texte pour la connexion
-                                              onTapOutside: (event) {
-                                                FocusScope.of(context).unfocus();
-                                              },
-                                              cursorColor: black,
-                                              decoration: InputDecoration(
-                                                labelText: 'Adresse e-mail',
-                                                labelStyle: Theme.of(context).textTheme.bodyMedium,
-                                                //helperText: '*Minimum 8 caractères dont\n1 majuscule, 1 chiffre et\n1 caractère spécial',  // TODO Déplacer dans le page de modification de mot de passe
-                                                //helperStyle: const TextStyle(color: black),
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: black, width: 1),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: yellow2, width: 2),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: largeHeight(context)),
-                                            SizedBox(
-                                              height: getHeight(context)/3,
-                                              child: TextField(  // Champ de texte pour la connexion
-                                                textAlignVertical: TextAlignVertical.top,
-                                                expands: true,
-                                                maxLines: null,
-                                                cursorColor: black,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Message',
-                                                  labelStyle: Theme.of(context).textTheme.bodyMedium,
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    borderSide: const BorderSide(color: black, width: 1),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    borderSide: const BorderSide(color: yellow2, width: 2),
-                                                  ),
-                                                ),
-                                                onTapOutside: (event) {
-                                                  FocusScope.of(context).unfocus();
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(height: mediumHeight(context)),
-                                            ElevatedButton(  // Bouton de connexion
-                                              style: ButtonStyle(
-                                                backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
-                                                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(5),
-                                                  ),
-                                                ),
-                                                padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                                                  EdgeInsets.symmetric(horizontal: 11),
-                                                ),
-                                                minimumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
-                                                ),
-                                                maximumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
-                                                ),
-                                              ),
-                                              
-                                              onPressed: () {
-                                                // TODO : faire la connexion
-                                              },
-                                              child: Text('Envoyer',
-                                                style: Theme.of(context).textTheme.bodyMedium
-                                              ),
-                                            ),
-                                            SizedBox(height: mediumHeight(context)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ),
-                            ]
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ]
-        ),
-      )
     );
   }
 }
