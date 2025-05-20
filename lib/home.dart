@@ -136,10 +136,10 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                 CarouselSlider(  // Carrousel d'images
                   items: [
                     Image.asset('assets/images/carousel.jpg',
-                      width: getWidth(context, 1.02858),
+                      width: getWidth(context, 400),
                     ),
                     Image.asset('assets/images/carousel1.jpg',
-                      width: getWidth(context, 1.02858),
+                      width: getWidth(context, 400),
                     )
                   ],
                   options: CarouselOptions(

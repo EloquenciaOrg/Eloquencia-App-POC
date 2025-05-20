@@ -8,7 +8,7 @@ class JoinPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),
+      appBar: appBarEloquencia(context, pageID, 0),
       endDrawer: endDrawerEloquencia(context, pageID),
       body: ListView(
         children: [

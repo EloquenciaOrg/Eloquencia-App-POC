@@ -1,5 +1,4 @@
 //import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:eloquencia/about.dart';
 import 'package:eloquencia/blog.dart';
@@ -9,38 +8,20 @@ import 'package:eloquencia/join.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/partners.dart';
 import 'package:eloquencia/reduction.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
 }
 
-void httpPackageInfo() async {
-  final httpPackageUrl = Uri.http('10.200.0.5', '/api/login');
-  final httpPackageInfo = await http.read(httpPackageUrl);
-  final httpPackageJson = json.decode(httpPackageInfo) as Map<String, dynamic>;
-  print(httpPackageJson);
-}
-
-void httpPackageResponse() async {
-  final httpPackageResponse = await http.get(
-    Uri.http('10.200.0.5', '/api/login'),
-    headers: {'User-Agent': '<product name>/<product-version>'},
-  );
-  if (httpPackageResponse.statusCode != 200) {
-    print('Failed to retrieve the http package!');
-    return;
-  }
-  print(httpPackageResponse.body);
-}
-
 // Variables globales
 
-bool filePicked = false;
+
 
 // Constantes globales
 
@@ -59,76 +40,78 @@ bool connectionStatus = false;  // Statut de la connexion à Internet
 // Constantes pour les couleurs
 const Color yellow = Color(0xFFFFC107);  // Couleur principale de l'application
 const Color yellow2 = Color(0xFFFFCA2C);  // Couleur secondaire de l'application
-const Color yellow3 = Color(0xFFE6AE07);  // Couleur tertiaire de l'application
+const Color yellow3 = Color(0xFFD9A407);  // Couleur tertiaire de l'application
 const Color black = Colors.black;  // Couleur noire
 const Color white = Color(0xFFF1EBF2);  // Couleur blanche
 
 // Fonctions globales
 
 // Fonctions pour les dimensions de l'application
-getWidth(context, [modifier = 1]) {
-  double width = MediaQuery.sizeOf(context).width;
-  if (kDebugMode) {
-    print(width);
-  }
-  if (modifier != 0) {
-    return width/modifier;
-  } else {
+getWidth(context, [double width = 0]) {
+  if (width != 0) {
+    double modifier = 411.42857142857144/width;
+    double displayWidth = MediaQuery.sizeOf(context).width;
     if (kDebugMode) {
-      print('Division par 0');
+      print(displayWidth);
     }
+    return displayWidth/modifier;
+  } else {
+    return 0.0;
   }
 }
 
-getHeight(context, [modifier = 1]) {
-  double height = MediaQuery.sizeOf(context).height;
-  if (modifier != 0) {
-    return height/modifier;
-  } else {
+getHeight(context, [double height = 0]) {
+  if (height != 0) {
+    double modifier = 891.4285714285714/height;
+    double displayHeight = MediaQuery.sizeOf(context).height;
     if (kDebugMode) {
-      print('Division par 0');
+      print(displayHeight);
     }
+    return displayHeight/modifier;
+  } else {
+    return 0.0;
   }
 }
 
 appBarHeight(context) {  // Hauteur de la barre de navigation
-  return getHeight(context, 14.8572);
+  return getHeight(context, 60);
 }
 
 objectWidth(context) {  // Largeur des objets
-  return getWidth(context, 1.17552);
+  return getWidth(context, 350);
 }
 
 largeHeight(context) {
-  return getHeight(context, 29.7143);
+  return getHeight(context, 30);
 }
 
 mediumHeight(context) {
-  return getHeight(context, 44.5715);
+  return getHeight(context, 20);
 }
 
 smallHeight(context) {
-  return getHeight(context, 89.1429);
+  return getHeight(context, 10);
 }
 
 largeWidth(context) {
-  return getWidth(context, 1.17552);
+  return getWidth(context, 350);
 }
 
 mediumWidth(context) {
-  return getWidth(context, 1.17552);
+  return getWidth(context, 350);
 }
 
 smallWidth(context) {
-  return getWidth(context, 1.17552);
+  return getWidth(context, 350);
 }
 
 // Fonctions pour les éléments de l'application
 
-appBarEloquencia(BuildContext context, pageID) {  // Fonction pour créer la barre de navigation en haut de l'application
+appBarEloquencia(BuildContext context, pageID, [double space = 16.0]) {  // Fonction pour créer la barre de navigation en haut de l'application
   return AppBar(
     backgroundColor: yellow,
     title: logoEloquencia(context, pageID, 22, ' - $pageID'),  // Logo et titre de l'application
+    titleSpacing: getWidth(context, space),  // Espace entre le logo et le bord gauche de l'écran
   );
 }
 
@@ -288,31 +271,61 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
   );
 }
 
+Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
+  try {
+    final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  } on SocketException catch (_) {
+    return false;
+  }
+}
+
+void httpPackageResponse() async {
+  final httpPackageResponse = await http.post(
+    Uri.parse('http://10.200.0.5/api/login'),
+    body: {
+      'username': 'toto',
+      'password': 'toto',
+    }
+  );
+  if (httpPackageResponse.statusCode != 200) {
+    print('Failed to retrieve the http package!');
+    return;
+  }
+  print(httpPackageResponse.body);
+}
+
 Future<String> pickFile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null) {
     File file = File(result.files.single.path!);
-    String fileName = file.toString().split(r'/').last;  // Récupérer le nom du fichier
-    filePicked = true;
-    return fileName;  // Retourner le nom du fichier
+    String fileName = file.toString().split(r'/',).last;  // Récupérer le nom du fichier
+    print(file);
+    return fileName.split('\'').first;
   } else {
     // User canceled the picker
-    filePicked = false;  // Aucune sélection de fichier
-    return '';
+    return '5Mo max (PNG, JPG)';
   }
 }
-//TODO
-/*
-pickFileText() {
-  if (file != null) {
-    return Text(fileName);
-  } else {
-    return const Text('Choisir un fichier');
-  }
-} */
 
-class MyApp extends StatelessWidget {  // L'application
+class MyApp extends StatefulWidget {  // L'application
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Hides the bottom navigation bar and the status bar
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -354,18 +367,3 @@ class MyApp extends StatelessWidget {  // L'application
     );
   }
 }
-
-/*
-Future check() async {  TODO : custom "connexion perdue" page
-  try {
-    final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      connectionStatus = true;
-      print("connected $connectionStatus");
-    }
-  } on SocketException catch (_) {
-    connectionStatus = false;
-    print("not connected $connectionStatus");
-  }
-}
-*/

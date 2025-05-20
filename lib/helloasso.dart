@@ -13,32 +13,39 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
 
   late WebViewController controller;  // Contrôleur de la WebView
   var loadingPercentage = 0;  // Pourcentage de chargement de la page
-  final pageID = 'HelloAsso';
+  final pageID = 'Adhésion';
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
-    controller = WebViewController()
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (url) {
-          setState(() {
-            loadingPercentage = 0;  // Réinitialiser le pourcentage de chargement
-          });
-        },
-        onProgress: (progress) {
-          setState(() {
-            loadingPercentage = progress;  // Mettre à jour le pourcentage de chargement
-          });
-        },
-        onPageFinished: (url) {
-          setState(() {
-            loadingPercentage = 100;  // Charger la page à 100%
-          });
-        },
-      ))
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)  // Autoriser JavaScript
-      ..loadRequest(Uri.parse(helloassoUrl));  // Charger l'URL de HelloAsso
-
+    // connectionStatus = await checkConnection();
+    // if (connectionStatus == true) {
+      controller = WebViewController()
+        ..setNavigationDelegate(NavigationDelegate(
+          onPageStarted: (url) {
+            setState(() {
+              loadingPercentage = 0;  // Réinitialiser le pourcentage de chargement
+            });
+          },
+          onProgress: (progress) {
+            setState(() {
+              loadingPercentage = progress;  // Mettre à jour le pourcentage de chargement
+            });
+          },
+          onPageFinished: (url) {
+            setState(() {
+              loadingPercentage = 100;  // Charger la page à 100%
+            });
+          },
+        ))
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)  // Autoriser JavaScript
+        ..loadRequest(Uri.parse(helloassoUrl));  // Charger l'URL de HelloAsso
+    // } else {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => const NoConnectionPage()),
+    //   );
+    // }
       /*if (connectionStatus == true) {
         controller.loadRequest(Uri.parse(helloassoUrl));  // Charger l'URL de HelloAsso
       } else if (connectionStatus == false) {
@@ -49,7 +56,7 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),
+      appBar: appBarEloquencia(context, pageID, 0),
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Stack(
         children: [
@@ -60,11 +67,25 @@ class _HelloAssoPageState extends State<HelloAssoPage> {
             ? LinearProgressIndicator(
                 value: loadingPercentage / 100,
                 backgroundColor: null,
-                color: black,
+                color: yellow3,
               )
             : Container(),  // Sinon, afficher un conteneur vide
         ]
       ),
+    );
+  }
+}
+
+class NoConnectionPage extends StatelessWidget {  // Page de connexion
+  const NoConnectionPage({super.key});
+  final pageID = 'Pas de connexion';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBarEloquencia(context, pageID, 0),
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: Scaffold()
     );
   }
 }

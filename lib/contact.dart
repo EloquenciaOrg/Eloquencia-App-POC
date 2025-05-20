@@ -14,7 +14,7 @@ class _ContactPageState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
@@ -114,7 +114,7 @@ class _ContactPageState extends State<ContactPage> {
                                             ),
                                             SizedBox(height: largeHeight(context)),
                                             SizedBox(
-                                              height: getHeight(context)/3,
+                                              height: getHeight(context, 250),
                                               child: TextField(  // Champ de texte pour la connexion
                                                 textAlignVertical: TextAlignVertical.top,
                                                 expands: true,

@@ -8,7 +8,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
@@ -217,7 +217,7 @@ class AboutPage extends StatelessWidget {
                         style: Theme.of(context).textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      Image.asset(logo, width: getWidth(context, 4)),
+                      Image.asset(logo, width: getWidth(context, 100)),
                       SizedBox(height: largeHeight(context)),
                       const Text('Le logo d\'Eloquéncia a tout d\'abord été "Eloquéncia, première Edition" car le but premier était seulement d\'accompagner les élèves de collèges et lycées à un concours de fin d\'année. Cependant, le président a par la suite préféré que l\'association soit plus accessible et qu\'elle puisse proposer des activités plus diverses et concerner un plus large public.',
                         textAlign: TextAlign.justify,
@@ -226,7 +226,7 @@ class AboutPage extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(25),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: getWidth(context, 12), vertical: getWidth(context, 12)),
+                          padding: EdgeInsets.symmetric(horizontal: getWidth(context, 35), vertical: getWidth(context, 35)),
                           color: yellow,
                           child: Column(
                             children: [

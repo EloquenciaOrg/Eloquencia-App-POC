@@ -14,7 +14,7 @@ class _PartnersPageState extends State<PartnersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(

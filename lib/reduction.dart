@@ -10,11 +10,12 @@ class ReductionPage extends StatefulWidget {
 
 class _ReductionPageState extends State<ReductionPage> {
   final pageID = 'Réductions';
+  String fileName = '5Mo max (PNG, JPG)';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
+      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
@@ -60,7 +61,7 @@ class _ReductionPageState extends State<ReductionPage> {
                                       )
                                     ),
                                     const Divider(
-                                      color: black,
+                                      color: yellow3,
                                       thickness: 3,
                                       height: 0,
                                     ),
@@ -143,24 +144,36 @@ class _ReductionPageState extends State<ReductionPage> {
                                                       )
                                                     ),
                                                     
-                                                    onPressed: () => pickFile(),
+                                                    onPressed: () async {
+                                                      final picked = await pickFile();
+                                                      setState(() {
+                                                        fileName = picked;
+                                                      });
+                                                    },
                                                     child: Text('Parcourir...',  // TODO filePicked ? const Text('Choisir un fichier') : Text(fileName)),
                                                       style: Theme.of(context).textTheme.bodyMedium)
                                                   ),
                                                   const SizedBox(width: 5),  // Espace horizontal entre le bouton et le texte
                                                   GestureDetector(
-                                                    child: Text('5Mo max (PNG, JPG)',
-                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                    child: SizedBox(
+                                                      width: getWidth(context, 175),
+                                                      child: Text(fileName,
+                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                      ),
                                                     ),
-                                                    onTap: () {
-                                                      pickFile();  // Ouvrir le sélecteur de fichiers
+                                                    onTap: () async{
+                                                      final picked = await pickFile();
+                                                      setState(() {
+                                                        fileName = picked;
+                                                      });  // Ouvrir le sélecteur de fichiers
                                                     },
                                                   ),
                                                 ],
                                               ),
                                             ),
                                             Text('En soumettant ce formulaire, vous acceptez que vos données soient utilisées pour traiter votre demande de réduction. Une fois la demande traitée, vos données seront supprimées.',
-                                              style: Theme.of(context).textTheme.bodySmall
+                                              style: Theme.of(context).textTheme.bodySmall,
+                                              textAlign: TextAlign.justify
                                             ),
                                             SizedBox(height: mediumHeight(context)),
                                             ElevatedButton(  // Bouton de connexion

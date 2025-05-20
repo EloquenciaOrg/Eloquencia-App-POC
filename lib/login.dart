@@ -1,3 +1,4 @@
+import 'package:eloquencia/forgotpasswd.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       return white;
     }
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),
+      appBar: appBarEloquencia(context, pageID, 0),
       endDrawer: endDrawerEloquencia(context, pageID),
       body: Center(
         child: ListView(
@@ -75,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                                       )
                                     ),
                                     const Divider(
-                                      color: black,
+                                      color: yellow3,
                                       thickness: 3,
                                       height: 0,
                                     ),
@@ -184,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                                                       ),
                                                       
                                                       onPressed: () {
-                                                        // TODO : faire la connexion
+                                                        httpPackageResponse();  // TODO : faire la connexion
                                                       },
                                                       child: Text('Connexion',
                                                         style: Theme.of(context).textTheme.bodyMedium
@@ -209,7 +210,10 @@ class _LoginPageState extends State<LoginPage> {
                                                       ),
                                                       
                                                       onPressed: () {
-                                                        
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => const ForgotPasswdPage()),
+                                                        );
                                                       },
                                                       child: Text('Mot de passe oublié',
                                                         style: Theme.of(context).textTheme.bodyMedium
