@@ -1,4 +1,5 @@
 //import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
+import 'dart:convert';
 import 'dart:io';
 import 'package:eloquencia/about.dart';
 import 'package:eloquencia/blog.dart';
@@ -24,11 +25,6 @@ void main() {
 
 
 // Constantes globales
-
-// Constantes pour la taille des boutons
-const double largebuttonwidth = 250;  // Hauteur des gros boutons
-const double buttonwidth = 150;  // Hauteur des boutons normaux
-const double buttonheight = 40;  // Largeur des boutons normaux
 
 // Constantes pour les images
 const String logo = 'assets/images/eloquencia_round.png';
@@ -103,6 +99,18 @@ mediumWidth(context) {
 
 smallWidth(context) {
   return getWidth(context, 350);
+}
+
+largeButtonWidth(context) {  // Hauteur des gros boutons
+  return getWidth(context, 250);
+}
+
+buttonWidth(context) {  // Largeur des boutons normaux
+  return getWidth(context, 150);
+}
+
+buttonHeight(context)  {  // Hauteur des boutons normaux
+  return getWidth(context, 40);
 }
 
 // Fonctions pour les éléments de l'application
@@ -274,6 +282,7 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
 Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
   try {
     final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
+    print(result);
     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
       return true;
     } else {
@@ -284,19 +293,120 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
   }
 }
 
-void httpPackageResponse() async {
-  final httpPackageResponse = await http.post(
+void apiLogin() async {
+  final apiLogin = await http.post(
     Uri.parse('http://10.200.0.5/api/login'),
     body: {
       'username': 'toto',
       'password': 'toto',
     }
   );
-  if (httpPackageResponse.statusCode != 200) {
+  if (apiLogin.statusCode != 200) {
     print('Failed to retrieve the http package!');
+  }
+  print(apiLogin.body);
+}
+
+Future apiBlog() async {
+  final apiBlog = await http.get(
+    Uri.parse('http://10.200.0.5/api/blog')
+  );
+  if (apiBlog.statusCode != 200) {
+    print('Failed to retrieve the http package!');
+    return 'Failed to retrieve the http package!';
+  }
+  print(jsonDecode(apiBlog.body.split(r'[').last.split(']').first));  // Récupérer le premier article du blog
+  // var blog = jsonDecode(apiBlog.body[0]);
+  // print(blog);
+  return apiBlog.body;
+}
+
+class BlogInfo {
+  final int id;
+  final String title;
+  final String content;
+  final String? pic;
+  final String? publishdate;
+  final int? featured;
+
+  BlogInfo({
+    required this.id,
+    required this.title,
+    required this.content,
+    this.pic,
+    this.publishdate,
+    this.featured
+  });
+
+  factory BlogInfo.fromJson(Map<String, dynamic> json) {
+    final pic = json['pic'] as String?;
+    final publishdate = json['publishdate'] as String?;
+    final featured = json['featured'] as int?;
+
+    return BlogInfo(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      content: json['content'] as String,
+      pic: pic,
+      publishdate: publishdate,
+      featured: featured
+    );
+  }
+}
+
+Future<void> showBlogInfo() async {
+  final BlogInfo blogInfo;
+
+  try {
+    blogInfo = await getBlog(0);
+  } on BlogRetrievalException catch (e) {
+    print(e);
     return;
   }
-  print(httpPackageResponse.body);
+
+  print('Information about the blog:');
+  print('id: ${blogInfo.id}');
+  print('title: ${blogInfo.title}');
+  print('content: ${blogInfo.content}');
+
+  final pic = blogInfo.pic;
+  if (pic != null) {
+    print('Picture: ${Image.memory(base64Decode(pic))}');
+  }
+  final publishdate = blogInfo.publishdate;
+  if (publishdate != null) {
+    print('Publish date: $publishdate');
+  }
+  final featured = blogInfo.featured;
+  if (featured != null) {
+    print('Featured: $featured');
+  }
+}
+
+Future<BlogInfo> getBlog(int blogNb) async {
+  final apiBlog = await http.get(
+    Uri.parse('http://10.200.0.5/api/blog')
+  );
+
+  // If the request didn't succeed, throw an exception
+  if (apiBlog.statusCode != 200) {
+    throw BlogRetrievalException(
+      statusCode: apiBlog.statusCode,
+    );
+  }
+
+    final List<dynamic> blogList = json.decode(apiBlog.body);
+  if (blogList.isEmpty) {
+    throw Exception('Aucun blog à afficher');
+  }
+
+  return BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+}
+
+class BlogRetrievalException implements Exception {
+  final int? statusCode;
+
+  BlogRetrievalException({this.statusCode});
 }
 
 Future<String> pickFile() async {
@@ -339,7 +449,7 @@ class _MyAppState extends State<MyApp> {
           ),
           titleMedium: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 30
+            fontSize: 35
           ),
           titleSmall: TextStyle(
             fontWeight: FontWeight.bold,

@@ -14,10 +14,10 @@ class HomePage extends StatelessWidget {  // La page d'accueil
     return Scaffold(
       appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
-      body:  Center(
-        child: ListView(
-          children: [
-            Column(
+      body: ListView(
+        children: [
+          Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
@@ -45,11 +45,14 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                                   borderRadius: BorderRadius.circular(5),
                                 ),
                               ),
-                              padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(horizontal: 11),
+                              padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(horizontal: getWidth(context,11)),
                               ),
-                              minimumSize: const WidgetStatePropertyAll<Size>(
-                                Size(buttonwidth, buttonheight),
+                              minimumSize: WidgetStatePropertyAll<Size>(
+                                Size(buttonWidth(context), 40),
+                              ),
+                              maximumSize: WidgetStatePropertyAll<Size>(
+                                Size(buttonWidth(context), 40),
                               ),
                             ),
 
@@ -75,8 +78,11 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                               padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                 EdgeInsets.symmetric(horizontal: 11),
                               ),
-                              minimumSize: const WidgetStatePropertyAll<Size>(
-                                Size(buttonwidth, buttonheight),
+                              minimumSize: WidgetStatePropertyAll<Size>(
+                                Size(buttonWidth(context), 40),
+                              ),
+                              maximumSize: WidgetStatePropertyAll<Size>(
+                                Size(buttonWidth(context), 40),
                               ),
                             ),
                             
@@ -117,8 +123,11 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                           padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                             EdgeInsets.symmetric(horizontal: 11),
                           ),
-                          minimumSize: const WidgetStatePropertyAll<Size>(
-                            Size(largebuttonwidth, buttonheight),
+                          minimumSize: WidgetStatePropertyAll<Size>(
+                            Size(getWidth(context, 250), 40),
+                          ),
+                          maximumSize: WidgetStatePropertyAll<Size>(
+                            Size(getWidth(context, 250), 40),
                           ),
                         ),
                         
@@ -164,9 +173,9 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                 ),
               ],
             ),
-          ]
-        )
-      ),
+          )
+        ]
+      )
     );
   }
 }

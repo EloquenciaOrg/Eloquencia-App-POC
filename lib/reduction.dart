@@ -136,11 +136,11 @@ class _ReductionPageState extends State<ReductionPage> {
                                                       padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                                         EdgeInsets.symmetric(horizontal: 11),
                                                       ),
-                                                      minimumSize: const WidgetStatePropertyAll(
-                                                        Size(buttonwidth - 35, 55)
+                                                      minimumSize: WidgetStatePropertyAll(
+                                                        Size(buttonWidth(context) - 35, 55)
                                                       ),
-                                                      maximumSize: const WidgetStatePropertyAll(
-                                                        Size(buttonwidth - 35, 55)
+                                                      maximumSize: WidgetStatePropertyAll(
+                                                        Size(buttonWidth(context) - 35, 55)
                                                       )
                                                     ),
                                                     
@@ -187,16 +187,16 @@ class _ReductionPageState extends State<ReductionPage> {
                                                 padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                                   EdgeInsets.symmetric(horizontal: 11),
                                                 ),
-                                                minimumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
+                                                minimumSize: WidgetStatePropertyAll<Size>(
+                                                  Size(buttonWidth(context) - getWidth(context, 40), 40),
                                                 ),
-                                                maximumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
+                                                maximumSize: WidgetStatePropertyAll<Size>(
+                                                  Size(buttonWidth(context) - getWidth(context, 40), 40),
                                                 ),
                                               ),
                                               
                                               onPressed: () {
-                                                // TODO : faire la connexion
+                                                // TODO Case à cocher pour accepter les conditions générales
                                               },
                                               child: Text('Envoyer',
                                                 style: Theme.of(context).textTheme.bodyMedium

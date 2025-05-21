@@ -149,11 +149,11 @@ class _ContactPageState extends State<ContactPage> {
                                                 padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
                                                   EdgeInsets.symmetric(horizontal: 11),
                                                 ),
-                                                minimumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
+                                                minimumSize: WidgetStatePropertyAll<Size>(
+                                                  Size(buttonWidth(context) - getWidth(context, 40), 40),
                                                 ),
-                                                maximumSize: const WidgetStatePropertyAll<Size>(
-                                                  Size(buttonwidth - 40, buttonheight),
+                                                maximumSize: WidgetStatePropertyAll<Size>(
+                                                  Size(buttonWidth(context) - getWidth(context, 40), 40),
                                                 ),
                                               ),
                                               
