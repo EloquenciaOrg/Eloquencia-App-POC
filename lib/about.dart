@@ -20,11 +20,11 @@ class AboutPage extends StatelessWidget {
                   child: Column(
                     children: [
                       SizedBox(height: appBarHeight(context)),
-                      Text('Eloquéncia',
-                        style: Theme.of(context).textTheme.titleLarge
+                      SelectableText('Eloquéncia',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       SizedBox(height: mediumHeight(context)),
-                      Text('L\'art de convaincre,\nle plaisir de parler !',
+                      SelectableText('L\'art de convaincre,\nle plaisir de parler !',
                         style: Theme.of(context).textTheme.headlineLarge
                       ),
                       SizedBox(height: largeHeight(context)),
@@ -257,10 +257,11 @@ class AboutPage extends StatelessWidget {
                             ],
                           )
                         ),
-                      )
+                      ),
+                      SizedBox(height: largeHeight(context))
                     ],
                   ),
-                ),          
+                ),
               ],
             )
           ],

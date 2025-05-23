@@ -1,13 +1,37 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:eloquencia/blog.dart';
+import 'package:eloquencia/discount.dart';
 import 'package:eloquencia/helloasso.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/main.dart';
-import 'package:eloquencia/reduction.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {  // La page d'accueil
+class HomePage extends StatefulWidget {  // La page d'accueil
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final pageID = 'Accueil';
+  late Map<String, dynamic> blogInfo;
+  String blogTitle = '';
+  Image? blogPic;
+  List<Widget> blogList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initBlogList();
+  }
+
+  Future<void> _initBlogList() async {
+    blogList = await showBlog(context, 2);
+    setState(() {
+      blogList = blogList;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +156,7 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                         ),
                         
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const DiscountPage()));
                         },
                         child: Text('Demander une réduction',
                           style: Theme.of(context).textTheme.bodyMedium
@@ -141,14 +165,12 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                     ]
                   )
                 ),
-                SizedBox(height: smallHeight(context)),  // Espace entre les boutons d'adhésion et de connexion et le carrousel
+                SizedBox(height: largeHeight(context)),  // Espace entre les boutons d'adhésion et de connexion et le carrousel
                 CarouselSlider(  // Carrousel d'images
                   items: [
                     Image.asset('assets/images/carousel.jpg',
-                      width: getWidth(context, 400),
                     ),
                     Image.asset('assets/images/carousel1.jpg',
-                      width: getWidth(context, 400),
                     )
                   ],
                   options: CarouselOptions(
@@ -156,7 +178,9 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                     autoPlayInterval: const Duration(seconds: 7),
                     enlargeCenterPage: true,
                     enlargeFactor: 2,
-                    height: 231
+                    aspectRatio: 2.0,
+                    viewportFraction: 1,
+                    height: getWidth(context, 235)
                   )
                 ),
                 SizedBox(
@@ -167,6 +191,33 @@ class HomePage extends StatelessWidget {  // La page d'accueil
                       Text('Articles à la une',
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: largeHeight(context)),
+                      ...blogList,
+                      ElevatedButton(  // Bouton de réinitialisation du mot de passe
+                        style: ButtonStyle(
+                          backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                          shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                            EdgeInsets.symmetric(horizontal: 11),
+                          ),
+                          minimumSize: WidgetStatePropertyAll<Size>(
+                            Size(buttonWidth(context) - getWidth(context, 40), 40),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const BlogPage()));
+                        },
+                        child: Text('Voir tous les articles',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          )
+                        ),
                       ),
                     ]
                   )

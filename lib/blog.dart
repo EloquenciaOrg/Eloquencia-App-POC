@@ -10,30 +10,37 @@ class BlogPage extends StatefulWidget {
 
 class _BlogPageState extends State<BlogPage> {
   final pageID = 'Blog';
-  late BlogInfo blogInfo;
+  late Map<String, dynamic> blogInfo;
   String blogTitle = '';
-  String blogContent = '';
   Image? blogPic;
+  List<Widget> blogList = [];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    () async {
-      try {
-        blogInfo = await getBlog(0);
-      } on BlogRetrievalException catch (e) {
-        print(e);
-        return;
-      }
-      setState(() {
-        blogTitle = blogInfo.title;
-        blogContent = blogInfo.content;
-        // blogPic = blogInfo.pic;
-        showBlogInfo();
-      });
-    };
+    _initBlogList();
+      // try {
+      //   blogInfo = (await getBlog())[0];
+      // } on BlogRetrievalException catch (e) {
+      //   print(e);
+      //   return;
+      // }
+      // setState(() {
+      //   if (blogInfo.pic != null) {
+      //     blogPic = Image.memory(base64Decode(blogInfo.pic!));
+      //   }
+      //   blogTitle = blogInfo.title;
+      //   showBlogInfo();
+      // });
   }
+
+  Future<void> _initBlogList() async {
+    blogList = await showBlog(context, 20);
+    setState(() {
+      blogList = blogList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,51 +52,46 @@ class _BlogPageState extends State<BlogPage> {
             Column(
               children: [
                 SizedBox(height: appBarHeight(context)),  // Espace entre le haut de la page et le contenu
-                ClipRRect(
-                  child: Column(
+                Text('Blog',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(height: mediumHeight(context)),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                    shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                      EdgeInsets.symmetric(horizontal: 11),
+                    ),
+                    minimumSize: WidgetStatePropertyAll<Size>(
+                      Size(buttonWidth(context), 40),
+                    ),
+                    maximumSize: WidgetStatePropertyAll<Size>(
+                      Size(buttonWidth(context), 40),
+                    ),
+                  ),
+                  onPressed: () async {
+                    _initBlogList();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Blog',
-                        style: Theme.of(context).textTheme.titleMedium,
+                      Icon(Icons.refresh,
+                        color: black,
+                        size: 23
                       ),
-                      Container(
-                        width: objectWidth(context),
-                        decoration: BoxDecoration(
-                          color: white,
-                          //border: Border.all(color: black, width: 3),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(blogTitle,
-                              style: Theme.of(context).textTheme.titleSmall
-                            ),
-                            Text(blogContent,
-                              style: Theme.of(context).textTheme.bodyLarge
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]
+                      SizedBox(width: getWidth(context, 5)),
+                      Text('Actualiser',
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    ],
                   )
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      blogInfo = await getBlog(0);  // TODO Savoir combien d'articles il y a et tous les afficher
-                    } on BlogRetrievalException catch (e) {
-                      print(e);
-                      return;
-                    }
-                    setState(() {
-                      blogTitle = blogInfo.title;
-                      blogContent = blogInfo.content;
-                      // blogPic = blogInfo.pic;
-                      showBlogInfo();
-                    });
-                  },
-                  child: const Text('data')
-                ),
+                SizedBox(height: mediumHeight(context)),
+                ...blogList,
                 Divider(
                   color: yellow
                 ),

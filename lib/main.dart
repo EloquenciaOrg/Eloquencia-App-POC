@@ -1,4 +1,6 @@
 //import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:eloquencia/about.dart';
@@ -8,13 +10,15 @@ import 'package:eloquencia/home.dart';
 import 'package:eloquencia/join.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/partners.dart';
-import 'package:eloquencia/reduction.dart';
+import 'package:eloquencia/discount.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,19 +27,18 @@ void main() {
 // Variables globales
 
 
-
 // Constantes globales
 
 // Constantes pour les images
-const String logo = 'assets/images/eloquencia_round.png';
+const String logo = 'assets/images/eloquencia_round.png';  // Logo d'Eloquéncia
 
 // Constantes pour la connexion Internet
-const String helloassoUrl = 'https://www.helloasso.com/associations/eloquencia/adhesions/adhesion';
+const String helloassoUrl = 'https://www.helloasso.com/associations/eloquencia/adhesions/adhesion';  // URL de HelloAsso
 bool connectionStatus = false;  // Statut de la connexion à Internet
 
 // Constantes pour les couleurs
 const Color yellow = Color(0xFFFFC107);  // Couleur principale de l'application
-const Color yellow2 = Color(0xFFFFCA2C);  // Couleur secondaire de l'application
+const Color yellow2 = Color.fromARGB(255, 255, 227, 44);  // Couleur secondaire de l'application
 const Color yellow3 = Color(0xFFD9A407);  // Couleur tertiaire de l'application
 const Color black = Colors.black;  // Couleur noire
 const Color white = Color(0xFFF1EBF2);  // Couleur blanche
@@ -43,74 +46,70 @@ const Color white = Color(0xFFF1EBF2);  // Couleur blanche
 // Fonctions globales
 
 // Fonctions pour les dimensions de l'application
-getWidth(context, [double width = 0]) {
-  if (width != 0) {
-    double modifier = 411.42857142857144/width;
-    double displayWidth = MediaQuery.sizeOf(context).width;
-    if (kDebugMode) {
-      print(displayWidth);
-    }
-    return displayWidth/modifier;
-  } else {
+getWidth(context, [double width = 0]) {  // Fonction pour obtenir la largeur voulue par rapport à la largeur de l'écran
+  if (width != 0) {  // Si la largeur est spécifiée
+    double modifier = 411.42857142857144/width;  // Calcule le modificateur en divisant la largeur de l'écran de test par la largeur voulue
+    double displayWidth = MediaQuery.sizeOf(context).width;  //initialise la largeur de l'écran
+    
+    print(displayWidth);  // Affiche la largeur de l'écran
+    return displayWidth/modifier;  // Calcule la largeur voulue par rapport à la largeur de l'écran actuel
+
+  } else {  // Sinon la largeur est de 0
     return 0.0;
   }
 }
 
-getHeight(context, [double height = 0]) {
-  if (height != 0) {
-    double modifier = 891.4285714285714/height;
-    double displayHeight = MediaQuery.sizeOf(context).height;
-    if (kDebugMode) {
-      print(displayHeight);
-    }
-    return displayHeight/modifier;
-  } else {
+getHeight(context, [double height = 0]) {  // Fonction pour obtenir la hauteur voulue par rapport à la hauteur de l'écran
+  if (height != 0) {  // Si la hauteur est spécifiée
+    double modifier = 891.4285714285714/height;  // Calcule le modificateur en divisant la hauteur de l'écran de test par la hauteur voulue
+    double displayHeight = MediaQuery.sizeOf(context).height;  //initialise la hauteur de l'écran
+
+    print(displayHeight);  // Affiche la hauteur de l'écran
+    return displayHeight/modifier;  // Calcule la hauteur voulue par rapport à la hauteur de l'écran actuel
+
+  } else {  // Sinon la hauteur est de 0
     return 0.0;
   }
 }
 
 appBarHeight(context) {  // Hauteur de la barre de navigation
-  return getHeight(context, 60);
+  return getHeight(context, 60);  // Hauteur de 60 pixels
 }
 
 objectWidth(context) {  // Largeur des objets
-  return getWidth(context, 350);
+  return getWidth(context, 350);  // Largeur de 350 pixels
 }
 
 largeHeight(context) {
-  return getHeight(context, 30);
+  return getHeight(context, 30);  // Hauteur de 30 pixels
 }
 
 mediumHeight(context) {
-  return getHeight(context, 20);
+  return getHeight(context, 20);  // Hauteur de 20 pixels
 }
 
 smallHeight(context) {
-  return getHeight(context, 10);
+  return getHeight(context, 10);  // Hauteur de 10 pixels
 }
 
 largeWidth(context) {
-  return getWidth(context, 350);
+  return getWidth(context, 350);  // Largeur de 350 pixels
 }
 
 mediumWidth(context) {
-  return getWidth(context, 350);
+  return getWidth(context, 350);  // Largeur de 350 pixels
 }
 
 smallWidth(context) {
-  return getWidth(context, 350);
-}
-
-largeButtonWidth(context) {  // Hauteur des gros boutons
-  return getWidth(context, 250);
+  return getWidth(context, 350);  // Largeur de 350 pixels
 }
 
 buttonWidth(context) {  // Largeur des boutons normaux
-  return getWidth(context, 150);
+  return getWidth(context, 150);  // Largeur de 150 pixels
 }
 
 buttonHeight(context)  {  // Hauteur des boutons normaux
-  return getWidth(context, 40);
+  return getWidth(context, 40);  // Hauteur de 40 pixels
 }
 
 // Fonctions pour les éléments de l'application
@@ -125,32 +124,32 @@ appBarEloquencia(BuildContext context, pageID, [double space = 16.0]) {  // Fonc
 
 drawerHeaderEloquencia(BuildContext context, pageID) {  // Fonction pour créer l'en-tête du menu de navigation
   return DrawerHeader(  // En-tête du menu de navigation
-    decoration: const BoxDecoration(color: yellow), // quand bouton cliqué : 0xFFFFCA2C
+    decoration: const BoxDecoration(color: yellow),  // Couleur du bouton
     child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,  // Alignement du logo le plus à gauche possible
       children: [
-        logoEloquencia(context, pageID, 30)
+        logoEloquencia(context, pageID, 30)  // Logo de l'application à la taille 30
       ],
     ),
   );
 }
 
-logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '']) {
+logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '']) {  // Fonction pour créer le logo de l'application
   return GestureDetector(
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,  // Alignement du logo le plus à gauche possible
       children: [
-        Image.asset(logo,
-          width: fontSize * 2,
+        Image.asset(logo,  // Logo de l'application à la largeur de la taille de la police multipliée par 2
+          width: fontSize * 2
         ),
         const SizedBox(width: 10),
-        Text('Eloquéncia',
+        Text('Eloquéncia',  // Nom de l'application dont la taille de police est choisie en paramètre
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold
           ),
         ),
-        Text(suffix,
+        Text(suffix,  // Nom de la page actuelle dont la taille de police est celle choisie en paramètre multipliée par 0.85
           style: TextStyle(
             fontWeight: FontWeight.normal,
             fontSize: fontSize*0.85
@@ -158,8 +157,8 @@ logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '
         )
       ],
     ),
-    onTap: () {
-      if (pageID == 'Accueil') {
+    onTap: () {  // Au touché du logo
+      if (pageID == 'Accueil') {  // Si je suis sur la page d'accueil rien ne se passe
       }
       else {
         while (Navigator.canPop(context)) {  // Si je ne suis pas sur la page d'accueil, je retourne à la page d'accueil
@@ -170,23 +169,24 @@ logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '
   );
 }
 
-copyrightEloquencia(BuildContext context) {  // Fonction pour créer le copyright
+copyrightEloquencia(BuildContext context) {  // Fonction pour créer le texte de copyright
   return SizedBox(
-    child: Text('©Eloquéncia 2024-2025 |\nFait avec 💙 et hébergé à Marseille',
+    child: Text('©Eloquéncia 2024-2025 |\nFait avec 💙 et hébergé à Marseille',  // Texte de copyright
       style: Theme.of(context).textTheme.labelMedium,
       textAlign: TextAlign.center,
     ),
   );
 }
 
-drawerBehavior(context, pageID, buttonID) {
+drawerBehavior(context, pageID, buttonID) {  // Fonction pour gérer le comportement du menu de navigation
   /*Est-ce que le nom du bouton est le même que l'ID de la page sur laquelle je suis
   si oui, Navigator.pop(context)
   si non, Navigator.push(context, MaterialPageRoute(builder: (context) => const lapage)*/
-  if (pageID == buttonID) {
-    Navigator.pop(context);
+
+  if (pageID == buttonID) {  // Si le nom du bouton est le même que l'ID de la page sur laquelle je suis
+    Navigator.pop(context);  // Le menu se ferme
   }
-  else {
+  else {  // Sinon je vais sur la page correspondante
     if (buttonID == 'Rejoindre') {
       Navigator.pop(context);  // Ferme le menu de navigation
       Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinPage()));
@@ -201,7 +201,7 @@ drawerBehavior(context, pageID, buttonID) {
     }
     else if (buttonID == 'Réductions') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const ReductionPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const DiscountPage()));
     }
     else if (buttonID == 'Contact') {
       Navigator.pop(context);  // Ferme le menu de navigation
@@ -224,56 +224,56 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
       padding: EdgeInsets.zero,
       children: [
         drawerHeaderEloquencia(context, pageID),  // En-tête du menu de navigation
-        ListTile(
+        ListTile(  // Bouton Rejoindre
           title: Text('Rejoindre',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'Rejoindre');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton Blog
           title: Text('Blog',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'Blog');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton Partenaires
           title: Text('Partenaires',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'Partenaires');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton Réductions
           title: Text('Réductions',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'Réductions');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton Contact
           title: Text('Contact',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'Contact');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton À propos
           title: Text('À propos',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
             drawerBehavior(context, pageID, 'À propos');
           },
         ),
-        ListTile(
+        ListTile(  // Bouton Connexion
           title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
             style: Theme.of(context).textTheme.bodyMedium), 
           onTap: () {
             drawerBehavior(context, pageID, 'Connexion');
           },
         ),
-        copyrightEloquencia(context)
+        copyrightEloquencia(context)  // Copyright
       ],
     ),
   );
@@ -307,32 +307,20 @@ void apiLogin() async {
   print(apiLogin.body);
 }
 
-Future apiBlog() async {
-  final apiBlog = await http.get(
-    Uri.parse('http://10.200.0.5/api/blog')
-  );
-  if (apiBlog.statusCode != 200) {
-    print('Failed to retrieve the http package!');
-    return 'Failed to retrieve the http package!';
-  }
-  print(jsonDecode(apiBlog.body.split(r'[').last.split(']').first));  // Récupérer le premier article du blog
-  // var blog = jsonDecode(apiBlog.body[0]);
-  // print(blog);
-  return apiBlog.body;
-}
-
-class BlogInfo {
-  final int id;
-  final String title;
-  final String content;
-  final String? pic;
-  final String? publishdate;
-  final int? featured;
+class BlogInfo {  // Classe pour stocker les informations du blog
+  final int id;  // Identifiant du blog
+  final String title;  // Titre du blog
+  final String content;  // Contenu du blog
+  final String? pic;  // Image du blog
+  final String? publishdate;  // Date de publication du blog
+  final int? featured;  // Indicateur de mise en avant du blog
+  final String summary;  // Résumé du blog
 
   BlogInfo({
     required this.id,
     required this.title,
     required this.content,
+    required this.summary,
     this.pic,
     this.publishdate,
     this.featured
@@ -347,6 +335,7 @@ class BlogInfo {
       id: json['id'] as int,
       title: json['title'] as String,
       content: json['content'] as String,
+      summary: json['summary'] as String,
       pic: pic,
       publishdate: publishdate,
       featured: featured
@@ -354,11 +343,12 @@ class BlogInfo {
   }
 }
 
-Future<void> showBlogInfo() async {
+Future<void> showBlogInfo(int blogNB) async {  // Fonction pour afficher les informations du blog
   final BlogInfo blogInfo;
 
   try {
-    blogInfo = await getBlog(0);
+    print((await getBlog())[blogNB]);
+    blogInfo = BlogInfo.fromJson((await getBlog())[blogNB]);
   } on BlogRetrievalException catch (e) {
     print(e);
     return;
@@ -371,36 +361,49 @@ Future<void> showBlogInfo() async {
 
   final pic = blogInfo.pic;
   if (pic != null) {
-    print('Picture: ${Image.memory(base64Decode(pic))}');
+    print('Picture: ${Image.asset(pic)}');
+  } else {
+    print('No picture');
   }
+
   final publishdate = blogInfo.publishdate;
   if (publishdate != null) {
     print('Publish date: $publishdate');
   }
+
   final featured = blogInfo.featured;
   if (featured != null) {
     print('Featured: $featured');
+  } else {
+    print('Not featured');
   }
+
+  print('summary: ${blogInfo.summary}');
 }
 
-Future<BlogInfo> getBlog(int blogNb) async {
-  final apiBlog = await http.get(
+Future<List<dynamic>> getBlog() async {
+  final apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
     Uri.parse('http://10.200.0.5/api/blog')
   );
 
   // If the request didn't succeed, throw an exception
   if (apiBlog.statusCode != 200) {
+    print(apiBlog.statusCode);
     throw BlogRetrievalException(
       statusCode: apiBlog.statusCode,
     );
   }
-
-    final List<dynamic> blogList = json.decode(apiBlog.body);
+  
+  if (apiBlog.body.isEmpty) {
+    throw Exception('Aucune information reçue');
+  } final List<dynamic> blogList = json.decode(apiBlog.body);
+  
   if (blogList.isEmpty) {
     throw Exception('Aucun blog à afficher');
   }
 
-  return BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+  print('Blog List: $blogList');
+  return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
 }
 
 class BlogRetrievalException implements Exception {
@@ -409,16 +412,274 @@ class BlogRetrievalException implements Exception {
   BlogRetrievalException({this.statusCode});
 }
 
-Future<String> pickFile() async {
+Future<List<Widget>> showBlog(context, int showNb) async {
+  Image? blogPic;
+  String blogTitle = '';
+  String blogSummary = '';
+  List<dynamic> blogList = await getBlog();
+  List<Widget> blogWidgets = [];
+  Map<String, dynamic> blogInfo;
+
+  if (blogList.isEmpty) {
+    throw Exception('Aucun blog à afficher');
+  } else if (showNb < blogList.length){
+    for (var i = 0; i < showNb; i++) {
+      blogInfo = blogList[i];
+      // if (blogInfo['pic'] != null) {
+      //   print(blogPic);
+      //   blogPic = Image.asset(blogInfo['pic']);
+      // } else {
+      //   blogPic = null;
+      //   print(null);
+      // }
+
+      blogTitle = blogInfo['title'];
+      blogSummary = blogInfo['summary'];
+      print('Blog $i Info: $blogInfo');
+      blogWidgets.add(Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Column(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    width: objectWidth(context),
+                    decoration: BoxDecoration(
+                      color: white,
+                      //border: Border.all(color: black, width: 3),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // blogPic!,
+                        SizedBox(height: mediumHeight(context)),
+                        Text(blogTitle,
+                          style: Theme.of(context).textTheme.titleSmall
+                        ),
+                        SizedBox(height: mediumHeight(context)),
+                        Text(blogSummary,
+                        style: Theme.of(context).textTheme.bodyMedium
+                        ),
+                        SizedBox(height: mediumHeight(context)),
+                        Divider(
+                          color: yellow3,
+                          thickness: 3,
+                          height: 0,
+                        ),
+                        Container(
+                          color: yellow,
+                          width: objectWidth(context),
+                          child: Column(
+                            children: [
+                              SizedBox(height: smallHeight(context)),
+                              Text('Cliquer pour lire la suite',
+                                style: Theme.of(context).textTheme.labelLarge
+                              ),
+                              SizedBox(height: smallHeight(context))
+                            ],
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: mediumHeight(context))
+        ],
+      ));
+      print(blogWidgets);
+    }
+    return blogWidgets;
+
+  } else {
+    for (var i = 0; i < blogList.length; i++) {
+      blogInfo = blogList[i];
+      // if (blogInfo['pic'] != null) {
+      //   blogPic = Image.asset(blogInfo['pic']);
+      // } else {
+      //   blogPic = null;
+      // }
+
+      blogTitle = blogInfo['title'];
+      blogSummary = blogInfo['summary'];
+      print('Blog $i Info: $blogInfo');
+      blogWidgets.add(Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Column(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    width: objectWidth(context),
+                    decoration: BoxDecoration(
+                      color: white,
+                      //border: Border.all(color: black, width: 3),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // blogPic!,
+                        SizedBox(height: mediumHeight(context)),
+                        Text(blogTitle,
+                          style: Theme.of(context).textTheme.titleSmall
+                        ),
+                        SizedBox(height: mediumHeight(context)),
+                        Text(blogSummary,
+                        style: Theme.of(context).textTheme.bodyMedium
+                        ),
+                        SizedBox(height: mediumHeight(context)),
+                        Divider(
+                          color: yellow3,
+                          thickness: 3,
+                          height: 0,
+                        ),
+                        Container(
+                          width: objectWidth(context),
+                          color: yellow,
+                          child: Column(
+                            children: [
+                              SizedBox(height: smallHeight(context)),
+                              Text('Cliquer pour lire la suite',
+                                style: Theme.of(context).textTheme.labelLarge
+                              ),
+                              SizedBox(height: smallHeight(context))
+                            ],
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: mediumHeight(context))
+        ],
+      ));
+    }
+    return blogWidgets;
+  }
+}
+
+Future apiContact(context, name, email, message) async {
+  final apiContact = await http.post(
+    Uri.parse('http://10.200.0.5/api/contact'),
+    body: {
+      'name': name,
+      'email': email,
+      'message': message
+    }
+  );
+  if (apiContact.statusCode != 200) {
+    print('Failed to retrieve the http package!');
+    return 'Failed to retrieve the http package!';
+  }
+  print(apiContact.body);
+  var contact = jsonDecode(apiContact.body) as Map<String, dynamic>;
+  print(contact);
+  if (contact['status'] == 'error') {
+    return Text(contact['message'],
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+    );
+  } else if (contact['status'] == 'success') {
+    return Text(contact['message'],
+      style: TextStyle(
+        color: Colors.green,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+    );
+  } else {
+    return Text('Erreur inconnue',
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+    );
+  }
+}
+
+Future pickFile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null) {
     File file = File(result.files.single.path!);
-    String fileName = file.toString().split(r'/',).last;  // Récupérer le nom du fichier
-    print(file);
-    return fileName.split('\'').first;
+    return file;
+  }
+}
+
+Future apiDiscount(context, name, email, File? proof) async {
+  if (proof == null) {
+    return Text('Aucun fichier sélectionné',
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+    );
   } else {
-    // User canceled the picker
-    return '5Mo max (PNG, JPG)';
+    var uri = Uri.parse('http://10.200.0.5/api/discount');
+    var request = http.MultipartRequest('POST', uri);
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    // get the mediatype of the file
+    var mimeType = lookupMimeType(proof.path);
+    var mimeTypeArray = mimeType?.split('/');
+    MediaType? mediaType;
+    if (mimeTypeArray != null && mimeTypeArray.length == 2) {
+      mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
+    }
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'proof',
+        proof.path,
+        contentType: mediaType, // or 'image/png', adjust as needed
+      ),
+    );
+
+    var streamedResponse = await request.send();
+    var apiDiscount = await http.Response.fromStream(streamedResponse);
+
+    if (apiDiscount.statusCode != 200) {
+      print('Failed to retrieve the http package!');
+      return 'Failed to retrieve the http package!';
+    }
+    print(apiDiscount.body.split(r'>').last);
+    var discount = apiDiscount.body.split(r'>').last;
+    var discountRes = jsonDecode(discount) as Map<String, dynamic>;
+    print(discountRes);
+    if (discountRes['status'] == 'error') {
+      return Text(discountRes['message'],
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    } else if (discountRes['status'] == 'success') {
+      return Text(discountRes['message'],
+        style: TextStyle(
+          color: Colors.green,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    } else {
+      return Text('Erreur inconnue',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    }
   }
 }
 
@@ -442,6 +703,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: const HomePage(),
       theme: ThemeData(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: yellow,
+          selectionColor: yellow2,
+          selectionHandleColor: yellow
+        ),
         textTheme: const TextTheme(
           titleLarge: TextStyle(
             fontWeight: FontWeight.bold,
