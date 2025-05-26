@@ -1,5 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:eloquencia/blog.dart';
+import 'package:eloquencia/article.dart';
 import 'package:eloquencia/discount.dart';
 import 'package:eloquencia/helloasso.dart';
 import 'package:eloquencia/login.dart';
@@ -38,11 +38,13 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
-      body: ListView(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      body: RefreshIndicator(
+        onRefresh: () async{
+          _initBlogList();
+        },
+        child: ListView(
+          children: [
+            Column(
               children: [
                 SizedBox(
                   width: objectWidth(context),
@@ -70,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(horizontal: getWidth(context,11)),
+                                EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
                               ),
                               minimumSize: WidgetStatePropertyAll<Size>(
                                 Size(buttonWidth(context), 40),
@@ -79,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                                 Size(buttonWidth(context), 40),
                               ),
                             ),
-
+            
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -99,8 +101,8 @@ class _HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(5),
                                 ),
                               ),
-                              padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(horizontal: 11),
+                              padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
                               ),
                               minimumSize: WidgetStatePropertyAll<Size>(
                                 Size(buttonWidth(context), 40),
@@ -122,21 +124,13 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                    ],
-                  )
-                ),
-                SizedBox(height: largeHeight(context)),  // Espace entre le bouton de connexion et le texte de réduction
-                SizedBox(
-                  width: objectWidth(context),
-                  child: Column(
-                    children: [
+                      SizedBox(height: largeHeight(context)),  // Espace entre le bouton de connexion et le texte de réduction
                       Text('Étudiant·e ou mineur·e ? Vous pouvez faire une demande de réduction ici.',
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.justify,
                       ),
                       SizedBox(height: mediumHeight(context)),  // Espace entre le texte et le bouton de demande de réduction
                       ElevatedButton(  // Bouton de demande de réduction
-                        // TODO : faire une page de demande de réduction
                         style: ButtonStyle(
                           backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
                           shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
@@ -144,8 +138,8 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
-                          padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                            EdgeInsets.symmetric(horizontal: 11),
+                          padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                            EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
                           ),
                           minimumSize: WidgetStatePropertyAll<Size>(
                             Size(getWidth(context, 250), 40),
@@ -162,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.bodyMedium
                         ),
                       ),
-                    ]
+                    ],
                   )
                 ),
                 SizedBox(height: largeHeight(context)),  // Espace entre les boutons d'adhésion et de connexion et le carrousel
@@ -190,10 +184,11 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: largeHeight(context)),
                       Text('Articles à la une',
                         style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.start,
                       ),
                       SizedBox(height: largeHeight(context)),
                       ...blogList,
+                      SizedBox(height: smallHeight(context)),
                       ElevatedButton(  // Bouton de réinitialisation du mot de passe
                         style: ButtonStyle(
                           backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
@@ -202,8 +197,8 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
-                          padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                            EdgeInsets.symmetric(horizontal: 11),
+                          padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                            EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
                           ),
                           minimumSize: WidgetStatePropertyAll<Size>(
                             Size(buttonWidth(context) - getWidth(context, 40), 40),
@@ -212,20 +207,20 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const BlogPage()));
+                            MaterialPageRoute(builder: (context) => const ArticlePage()));
                         },
                         child: Text('Voir tous les articles',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          )
+                          style: Theme.of(context).textTheme.bodyMedium
                         ),
                       ),
+                      SizedBox(height: largeHeight(context)),
                     ]
                   )
                 ),
               ],
-            ),
-          )
-        ]
+            )
+          ]
+        ),
       )
     );
   }

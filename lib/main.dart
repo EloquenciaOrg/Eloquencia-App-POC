@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:eloquencia/about.dart';
+import 'package:eloquencia/article.dart';
 import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/contact.dart';
 import 'package:eloquencia/home.dart';
@@ -279,6 +280,80 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
   );
 }
 
+blogArticleSummary(context, blogTitle, blogSummary, [Image? blogPic]) {  // Fonction pour créer un article de blog
+  return Column(
+    children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: GestureDetector(
+          child: Column(
+            children: [
+              Container(
+                width: objectWidth(context),
+                decoration: BoxDecoration(
+                  color: white,
+                  //border: Border.all(color: black, width: 3),
+                ),
+                child: Column(
+                  children: [
+                    // blogPic!,
+                    SizedBox(height: mediumHeight(context)),
+                    SizedBox(
+                      width: objectWidth(context) - getWidth(context, 50),
+                      child: Column(
+                        children: [
+                          Text(blogTitle,
+                            style: Theme.of(context).textTheme.titleSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: mediumHeight(context)),
+                          Text(blogSummary,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.justify,
+                          ),
+                        ]
+                      )
+                    ),
+                    SizedBox(height: mediumHeight(context))
+                  ]
+                )
+              ),
+              Divider(
+                color: yellow3,
+                thickness: 3,
+                height: 0,
+              ),
+              Container(
+                width: objectWidth(context),
+                decoration: BoxDecoration(
+                  color: yellow,
+                  //border: Border.all(color: black, width: 3),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: smallHeight(context)),
+                    Text('Cliquer pour lire la suite',
+                      style: Theme.of(context).textTheme.labelLarge
+                    ),
+                    SizedBox(height: smallHeight(context))
+                  ],
+                )
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ArticlePage())  // Ouvrir l'article de blog au touché
+            );
+          },
+        ),
+      ),
+      SizedBox(height: mediumHeight(context))
+    ],
+  );
+}
+
 Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
   try {
     final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
@@ -383,7 +458,7 @@ Future<void> showBlogInfo(int blogNB) async {  // Fonction pour afficher les inf
 
 Future<List<dynamic>> getBlog() async {
   final apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
-    Uri.parse('http://10.200.0.5/api/blog')
+    Uri.parse('https://dev.eloquencia.org/api/blog')
   );
 
   // If the request didn't succeed, throw an exception
@@ -414,8 +489,6 @@ class BlogRetrievalException implements Exception {
 
 Future<List<Widget>> showBlog(context, int showNb) async {
   Image? blogPic;
-  String blogTitle = '';
-  String blogSummary = '';
   List<dynamic> blogList = await getBlog();
   List<Widget> blogWidgets = [];
   Map<String, dynamic> blogInfo;
@@ -433,66 +506,8 @@ Future<List<Widget>> showBlog(context, int showNb) async {
       //   print(null);
       // }
 
-      blogTitle = blogInfo['title'];
-      blogSummary = blogInfo['summary'];
       print('Blog $i Info: $blogInfo');
-      blogWidgets.add(Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: Column(
-              children: [
-                GestureDetector(
-                  child: Container(
-                    width: objectWidth(context),
-                    decoration: BoxDecoration(
-                      color: white,
-                      //border: Border.all(color: black, width: 3),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // blogPic!,
-                        SizedBox(height: mediumHeight(context)),
-                        Text(blogTitle,
-                          style: Theme.of(context).textTheme.titleSmall
-                        ),
-                        SizedBox(height: mediumHeight(context)),
-                        Text(blogSummary,
-                        style: Theme.of(context).textTheme.bodyMedium
-                        ),
-                        SizedBox(height: mediumHeight(context)),
-                        Divider(
-                          color: yellow3,
-                          thickness: 3,
-                          height: 0,
-                        ),
-                        Container(
-                          color: yellow,
-                          width: objectWidth(context),
-                          child: Column(
-                            children: [
-                              SizedBox(height: smallHeight(context)),
-                              Text('Cliquer pour lire la suite',
-                                style: Theme.of(context).textTheme.labelLarge
-                              ),
-                              SizedBox(height: smallHeight(context))
-                            ],
-                          )
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    
-                  },
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: mediumHeight(context))
-        ],
-      ));
+      blogWidgets.add(blogArticleSummary(context, blogInfo['title'], blogInfo['summary']));
       print(blogWidgets);
     }
     return blogWidgets;
@@ -506,74 +521,103 @@ Future<List<Widget>> showBlog(context, int showNb) async {
       //   blogPic = null;
       // }
 
-      blogTitle = blogInfo['title'];
-      blogSummary = blogInfo['summary'];
       print('Blog $i Info: $blogInfo');
-      blogWidgets.add(Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: Column(
-              children: [
-                GestureDetector(
-                  child: Container(
-                    width: objectWidth(context),
-                    decoration: BoxDecoration(
-                      color: white,
-                      //border: Border.all(color: black, width: 3),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // blogPic!,
-                        SizedBox(height: mediumHeight(context)),
-                        Text(blogTitle,
-                          style: Theme.of(context).textTheme.titleSmall
-                        ),
-                        SizedBox(height: mediumHeight(context)),
-                        Text(blogSummary,
-                        style: Theme.of(context).textTheme.bodyMedium
-                        ),
-                        SizedBox(height: mediumHeight(context)),
-                        Divider(
-                          color: yellow3,
-                          thickness: 3,
-                          height: 0,
-                        ),
-                        Container(
-                          width: objectWidth(context),
-                          color: yellow,
-                          child: Column(
-                            children: [
-                              SizedBox(height: smallHeight(context)),
-                              Text('Cliquer pour lire la suite',
-                                style: Theme.of(context).textTheme.labelLarge
-                              ),
-                              SizedBox(height: smallHeight(context))
-                            ],
-                          )
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    
-                  },
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: mediumHeight(context))
-        ],
-      ));
+      blogWidgets.add(blogArticleSummary(context, blogInfo['title'], blogInfo['summary']));
     }
     return blogWidgets;
   }
 }
 
+Future<Widget> showArticle(context, int articleId) async {
+  List<dynamic> blogList = await getBlog();
+  Widget articleWidgets;
+  Map<String, dynamic> blogInfo;
+
+  if (blogList.isEmpty) {
+    throw Exception('Aucun blog à afficher');
+  } else {
+    for (var i = 0; i < blogList.length; i++) {
+      if (blogList[i]['id'] == articleId) {
+        blogInfo = blogList[i];
+        articleWidgets = Column(
+          children: [
+            // Image.asset(blogInfo['pic']),
+            Text(blogInfo['title'],
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: mediumHeight(context)),
+            Text('Publié le ${blogInfo['publishdate']}',
+              style: Theme.of(context).textTheme.labelLarge,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: mediumHeight(context)),
+            Text(blogInfo['content'],
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.justify,
+            ),
+            SizedBox(height: mediumHeight(context)),
+          ]
+        );
+        print('Blog $i Info: $blogInfo');
+        print(articleWidgets);
+        return articleWidgets;
+      }
+      // if (blogInfo['pic'] != null) {
+      //   print(blogPic);
+      //   blogPic = Image.asset(blogInfo['pic']);
+      // } else {
+      //   blogPic = null;
+      //   print(null);
+      // }
+
+    }
+  // } else {
+  //   for (var i = 0; i < blogList.length; i++) {
+  //     blogInfo = blogList[i];
+  //     // if (blogInfo['pic'] != null) {
+  //     //   blogPic = Image.asset(blogInfo['pic']);
+  //     // } else {
+  //     //   blogPic = null;
+  //     // }
+
+  //     blogTitle = blogInfo['title'];
+  //     blogSummary = blogInfo['summary'];
+  //     print('Blog $i Info: $blogInfo');
+  //     blogWidgets.add(blogArticleSummary(context, blogTitle, blogSummary));
+  //   }
+  //   return blogWidgets;
+  }
+  return Scaffold(
+    appBar: appBarEloquencia(context, 'Erreur', 0),
+    endDrawer: endDrawerEloquencia(context, articleId),
+    body: ListView(
+      children: [
+        Center(
+          child: SizedBox(
+            width: objectWidth(context),
+            child: Column(
+              children: [
+                SizedBox(height: appBarHeight(context)),
+                Text('Article non trouvé',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: Theme.of(context).textTheme.titleLarge?.fontSize
+                  ),
+                  textAlign: TextAlign.center,
+                )
+              ]
+            )
+          )
+        )
+      ]
+    )
+  );
+}
+
 Future apiContact(context, name, email, message) async {
   final apiContact = await http.post(
-    Uri.parse('http://10.200.0.5/api/contact'),
+    Uri.parse('https://dev.eloquencia.org/api/contact'),
     body: {
       'name': name,
       'email': email,
@@ -627,16 +671,34 @@ Future apiDiscount(context, name, email, File? proof) async {
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
       ),
     );
+  } else if (email.split('@').last == 'icloud.com' || email.split('@').last == 'sfr.fr') {
+    return Text('L\'adresse e-mail ne peut pas être une adresse iCloud ou SFR',
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+      textAlign: TextAlign.justify,
+    );
   } else {
-    var uri = Uri.parse('http://10.200.0.5/api/discount');
+    var uri = Uri.parse('https://dev.eloquencia.org/api/discount');
     var request = http.MultipartRequest('POST', uri);
     request.fields['name'] = name;
     request.fields['email'] = email;
     // get the mediatype of the file
     var mimeType = lookupMimeType(proof.path);
+    print(mimeType);
     var mimeTypeArray = mimeType?.split('/');
+    print(mimeTypeArray);
     MediaType? mediaType;
     if (mimeTypeArray != null && mimeTypeArray.length == 2) {
+      if (mimeTypeArray[1] != 'jpeg' && mimeTypeArray[1] != 'png' && mimeTypeArray[1] != 'pdf'){
+        return Text('Le fichier doit être au format JPEG, PNG ou PDF',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+        );
+      }
       mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
     }
     request.files.add(
@@ -646,9 +708,10 @@ Future apiDiscount(context, name, email, File? proof) async {
         contentType: mediaType, // or 'image/png', adjust as needed
       ),
     );
-
+  
     var streamedResponse = await request.send();
     var apiDiscount = await http.Response.fromStream(streamedResponse);
+  
 
     if (apiDiscount.statusCode != 200) {
       print('Failed to retrieve the http package!');

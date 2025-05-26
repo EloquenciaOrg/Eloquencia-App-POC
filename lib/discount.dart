@@ -11,14 +11,29 @@ class DiscountPage extends StatefulWidget {
 
 class _DiscountPageState extends State<DiscountPage> {
   final pageID = 'Réductions';
-  String fileName = '5Mo max (PNG, JPG)';
+  String fileName = '5Mo max (PNG, JPG ou PDF)';
   File? file;
   final name = TextEditingController();
   final email = TextEditingController();
   Widget? errorMessage;
+  bool isChecked = false;  // Statut de la case à cocher
 
   @override
   Widget build(BuildContext context) {
+    Color getColor(Set<WidgetState> states) {
+      const Set<WidgetState> interactiveStates = <WidgetState>{
+        WidgetState.pressed,
+        WidgetState.hovered,
+        WidgetState.focused
+      };
+      if (states.any(interactiveStates.contains)) {
+        return yellow2;  // Couleur de la case à cocher si elle est pressée, survolée ou focalisée
+      }
+      else if (isChecked == true) {
+        return yellow;  // Couleur de la case à cocher si elle est cochée
+      }
+      return white;
+    }
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),
@@ -152,7 +167,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                     onPressed: () async {
                                                       file = await pickFile();
                                                       if (file == null) {
-                                                        fileName = '5Mo max (PNG, JPG)';
+                                                        fileName = '5Mo max (PNG, JPG ou PDF)';
                                                       } else {
                                                         fileName = (file.toString().split(r'/',).last).split('\'').first;
                                                       }
@@ -160,7 +175,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                         fileName = fileName;
                                                       });
                                                     },
-                                                    child: Text('Parcourir...',  // TODO filePicked ? const Text('Choisir un fichier') : Text(fileName)),
+                                                    child: Text('Parcourir...',
                                                       style: Theme.of(context).textTheme.bodyMedium)
                                                   ),
                                                   const SizedBox(width: 5),  // Espace horizontal entre le bouton et le texte
@@ -175,7 +190,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                       file = await pickFile();
                                                       print(file);
                                                       if (file == null) {
-                                                        fileName = '5Mo max (PNG, JPG)';
+                                                        fileName = '5Mo max (PNG, JPG ou PDF)';
                                                       } else {
                                                         fileName = (file.toString().split(r'/',).last).split('\'').first;
                                                       }
@@ -191,9 +206,39 @@ class _DiscountPageState extends State<DiscountPage> {
                                               style: Theme.of(context).textTheme.bodySmall,
                                               textAlign: TextAlign.justify
                                             ),
-                                            SizedBox(height: mediumHeight(context)),
+                                            SizedBox(height: smallHeight(context)),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Checkbox(
+                                                  checkColor: white,
+                                                  fillColor: WidgetStateProperty.resolveWith(getColor),
+                                                  value: isChecked,
+                                                  onChanged: (bool? value) {
+                                                    setState(() {
+                                                      isChecked = value!;  // Mettre à jour le statut de la case à cocher
+                                                    });
+                                                  },
+                                                ),
+                                                GestureDetector(
+                                                  child: SizedBox(
+                                                    width: getWidth(context, 250),
+                                                    child: Text('Accepter les conditions générales',
+                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                    ),
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      isChecked = !isChecked;  // Inverser le statut de la case à cocher
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: smallHeight(context)),
                                             if (errorMessage != null) 
                                               errorMessage!,
+                                            SizedBox(height: smallHeight(context)),
                                             ElevatedButton(  // Bouton de connexion
                                               style: ButtonStyle(
                                                 backgroundColor: const WidgetStatePropertyAll<Color>(yellow),

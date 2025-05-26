@@ -142,9 +142,10 @@ class _ContactPageState extends State<ContactPage> {
                                                 ),
                                               ),
                                             ),
+                                            SizedBox(height: smallHeight(context)),
                                             if (errorMessage != null) 
                                               errorMessage!,
-                                            SizedBox(height: mediumHeight(context)),
+                                            SizedBox(height: smallHeight(context)),
                                             ElevatedButton(  // Bouton de connexion
                                               style: ButtonStyle(
                                                 backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
