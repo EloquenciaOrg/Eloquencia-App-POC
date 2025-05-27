@@ -280,7 +280,71 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
   );
 }
 
-blogArticleSummary(context, blogTitle, blogSummary, [Image? blogPic]) {  // Fonction pour créer un article de blog
+Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
+  try {
+    final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
+    print('Résultat : $result');
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  } on SocketException catch (_) {
+    return false;
+  }
+}
+
+void apiLogin() async {
+  final apiLogin = await http.post(
+    Uri.parse('http://10.200.0.5/api/login'),
+    body: {
+      'username': 'toto',
+      'password': 'toto',
+    }
+  );
+  if (apiLogin.statusCode != 200) {
+    print('Failed to retrieve the http package!');
+  }
+  print(apiLogin.body);
+}
+
+class BlogInfo {  // Classe pour stocker les informations du blog
+  final int id;  // Identifiant du blog
+  final String title;  // Titre du blog
+  final String content;  // Contenu du blog
+  final String? pic;  // Image du blog
+  final String? publishdate;  // Date de publication du blog
+  final int? featured;  // Indicateur de mise en avant du blog
+  final String summary;  // Résumé du blog
+
+  BlogInfo({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.summary,
+    this.pic,
+    this.publishdate,
+    this.featured
+  });
+
+  factory BlogInfo.fromJson(Map<String, dynamic> json) {
+    final pic = json['pic'] as String?;
+    final publishdate = json['publishdate'] as String?;
+    final featured = json['featured'] as int?;
+
+    return BlogInfo(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      content: json['content'] as String,
+      summary: json['summary'] as String,
+      pic: pic,
+      publishdate: publishdate,
+      featured: featured
+    );
+  }
+}
+
+Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogPic]) {  // Fonction pour créer un article de blog
   return Column(
     children: [
       ClipRRect(
@@ -344,7 +408,7 @@ blogArticleSummary(context, blogTitle, blogSummary, [Image? blogPic]) {  // Fonc
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ArticlePage())  // Ouvrir l'article de blog au touché
+              MaterialPageRoute(builder: (context) => ArticlePage(articleId: blogId))  // Ouvrir l'article de blog au touché
             );
           },
         ),
@@ -354,76 +418,12 @@ blogArticleSummary(context, blogTitle, blogSummary, [Image? blogPic]) {  // Fonc
   );
 }
 
-Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
-  try {
-    final result = await InternetAddress.lookup(helloassoUrl);  // Vérifier la connexion à Internet
-    print(result);
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
-  } on SocketException catch (_) {
-    return false;
-  }
-}
-
-void apiLogin() async {
-  final apiLogin = await http.post(
-    Uri.parse('http://10.200.0.5/api/login'),
-    body: {
-      'username': 'toto',
-      'password': 'toto',
-    }
-  );
-  if (apiLogin.statusCode != 200) {
-    print('Failed to retrieve the http package!');
-  }
-  print(apiLogin.body);
-}
-
-class BlogInfo {  // Classe pour stocker les informations du blog
-  final int id;  // Identifiant du blog
-  final String title;  // Titre du blog
-  final String content;  // Contenu du blog
-  final String? pic;  // Image du blog
-  final String? publishdate;  // Date de publication du blog
-  final int? featured;  // Indicateur de mise en avant du blog
-  final String summary;  // Résumé du blog
-
-  BlogInfo({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.summary,
-    this.pic,
-    this.publishdate,
-    this.featured
-  });
-
-  factory BlogInfo.fromJson(Map<String, dynamic> json) {
-    final pic = json['pic'] as String?;
-    final publishdate = json['publishdate'] as String?;
-    final featured = json['featured'] as int?;
-
-    return BlogInfo(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      content: json['content'] as String,
-      summary: json['summary'] as String,
-      pic: pic,
-      publishdate: publishdate,
-      featured: featured
-    );
-  }
-}
-
-Future<void> showBlogInfo(int blogNB) async {  // Fonction pour afficher les informations du blog
+Future<void> showBlogInfo(context, int blogNB) async {  // Fonction pour afficher les informations du blog
   final BlogInfo blogInfo;
 
   try {
-    print((await getBlog())[blogNB]);
-    blogInfo = BlogInfo.fromJson((await getBlog())[blogNB]);
+    print((await getBlog(context))[blogNB]);
+    blogInfo = BlogInfo.fromJson((await getBlog(context))[blogNB]);
   } on BlogRetrievalException catch (e) {
     print(e);
     return;
@@ -456,7 +456,7 @@ Future<void> showBlogInfo(int blogNB) async {  // Fonction pour afficher les inf
   print('summary: ${blogInfo.summary}');
 }
 
-Future<List<dynamic>> getBlog() async {
+Future<List<dynamic>> getBlog(context) async {
   final apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
     Uri.parse('https://dev.eloquencia.org/api/blog')
   );
@@ -479,6 +479,7 @@ Future<List<dynamic>> getBlog() async {
 
   print('Blog List: $blogList');
   return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+
 }
 
 class BlogRetrievalException implements Exception {
@@ -488,48 +489,56 @@ class BlogRetrievalException implements Exception {
 }
 
 Future<List<Widget>> showBlog(context, int showNb) async {
-  Image? blogPic;
-  List<dynamic> blogList = await getBlog();
+  Image? blogPic;  //TODO récupérer correctement les images des blogs
+  List<dynamic> blogList = await getBlog(context);
   List<Widget> blogWidgets = [];
   Map<String, dynamic> blogInfo;
 
   if (blogList.isEmpty) {
-    throw Exception('Aucun blog à afficher');
+    return [Text('Aucun blog à afficher')];
   } else if (showNb < blogList.length){
     for (var i = 0; i < showNb; i++) {
-      blogInfo = blogList[i];
-      // if (blogInfo['pic'] != null) {
-      //   print(blogPic);
-      //   blogPic = Image.asset(blogInfo['pic']);
-      // } else {
-      //   blogPic = null;
-      //   print(null);
-      // }
+      if (blogList[i] is Map<String, dynamic>) {
+        blogInfo = blogList[i];
+        // if (blogInfo['pic'] != null) {
+        //   print(blogPic);
+        //   blogPic = Image.asset(blogInfo['pic']);
+        // } else {
+        //   blogPic = null;
+        //   print(null);
+        // }
 
-      print('Blog $i Info: $blogInfo');
-      blogWidgets.add(blogArticleSummary(context, blogInfo['title'], blogInfo['summary']));
-      print(blogWidgets);
+        print('Blog $i Info: $blogInfo');
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
+        print(blogWidgets);
+      } else {
+        return blogList as List<Widget>;
+      }
     }
     return blogWidgets;
 
   } else {
     for (var i = 0; i < blogList.length; i++) {
-      blogInfo = blogList[i];
-      // if (blogInfo['pic'] != null) {
-      //   blogPic = Image.asset(blogInfo['pic']);
-      // } else {
-      //   blogPic = null;
-      // }
+      if (blogList[i] is Map<String, dynamic>) {
+        blogInfo = blogList[i];
+        // if (blogInfo['pic'] != null) {
+        //   blogPic = Image.asset(blogInfo['pic']);
+        // } else {
+        //   blogPic = null;
+        // }
 
-      print('Blog $i Info: $blogInfo');
-      blogWidgets.add(blogArticleSummary(context, blogInfo['title'], blogInfo['summary']));
+        print('Blog $i Info: $blogInfo');
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
+      } else {
+        return blogList as List<Widget>;
+      }
     }
     return blogWidgets;
   }
 }
 
 Future<Widget> showArticle(context, int articleId) async {
-  List<dynamic> blogList = await getBlog();
+  List<dynamic> blogList = await getBlog(context);
   Widget articleWidgets;
   Map<String, dynamic> blogInfo;
 
@@ -680,63 +689,72 @@ Future apiDiscount(context, name, email, File? proof) async {
       textAlign: TextAlign.justify,
     );
   } else {
-    var uri = Uri.parse('https://dev.eloquencia.org/api/discount');
-    var request = http.MultipartRequest('POST', uri);
-    request.fields['name'] = name;
-    request.fields['email'] = email;
-    // get the mediatype of the file
-    var mimeType = lookupMimeType(proof.path);
-    print(mimeType);
-    var mimeTypeArray = mimeType?.split('/');
-    print(mimeTypeArray);
-    MediaType? mediaType;
-    if (mimeTypeArray != null && mimeTypeArray.length == 2) {
-      if (mimeTypeArray[1] != 'jpeg' && mimeTypeArray[1] != 'png' && mimeTypeArray[1] != 'pdf'){
-        return Text('Le fichier doit être au format JPEG, PNG ou PDF',
+    try {
+      var uri = Uri.parse('https://dev.eloquencia.org/api/discount');
+      var request = http.MultipartRequest('POST', uri);
+      request.fields['name'] = name;
+      request.fields['email'] = email;
+      // get the mediatype of the file
+      var mimeType = lookupMimeType(proof.path);
+      print(mimeType);
+      var mimeTypeArray = mimeType?.split('/');
+      print(mimeTypeArray);
+      MediaType? mediaType;
+      if (mimeTypeArray != null && mimeTypeArray.length == 2) {
+        if (mimeTypeArray[1] != 'jpeg' && mimeTypeArray[1] != 'png' && mimeTypeArray[1] != 'pdf'){
+          return Text('Le fichier doit être au format JPEG, PNG ou PDF',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+            ),
+          );
+        }
+        mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
+      }
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'proof',
+          proof.path,
+          contentType: mediaType, // or 'image/png', adjust as needed
+        ),
+      );
+    
+      var streamedResponse = await request.send();
+      var apiDiscount = await http.Response.fromStream(streamedResponse);
+    
+
+      if (apiDiscount.statusCode != 200) {
+        print('Failed to retrieve the http package!');
+        return 'Failed to retrieve the http package!';
+      }
+      print(apiDiscount.body.split(r'>').last);
+      var discount = apiDiscount.body.split(r'>').last;
+      var discountRes = jsonDecode(discount) as Map<String, dynamic>;
+      print(discountRes);
+      if (discountRes['status'] == 'error') {
+        return Text(discountRes['message'],
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+        );
+      } else if (discountRes['status'] == 'success') {
+        return Text(discountRes['message'],
+          style: TextStyle(
+            color: Colors.green,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+        );
+      } else {
+        return Text('Erreur inconnue',
           style: TextStyle(
             color: Colors.red,
             fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
           ),
         );
       }
-      mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
-    }
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'proof',
-        proof.path,
-        contentType: mediaType, // or 'image/png', adjust as needed
-      ),
-    );
-  
-    var streamedResponse = await request.send();
-    var apiDiscount = await http.Response.fromStream(streamedResponse);
-  
-
-    if (apiDiscount.statusCode != 200) {
-      print('Failed to retrieve the http package!');
-      return 'Failed to retrieve the http package!';
-    }
-    print(apiDiscount.body.split(r'>').last);
-    var discount = apiDiscount.body.split(r'>').last;
-    var discountRes = jsonDecode(discount) as Map<String, dynamic>;
-    print(discountRes);
-    if (discountRes['status'] == 'error') {
-      return Text(discountRes['message'],
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-        ),
-      );
-    } else if (discountRes['status'] == 'success') {
-      return Text(discountRes['message'],
-        style: TextStyle(
-          color: Colors.green,
-          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-        ),
-      );
-    } else {
-      return Text('Erreur inconnue',
+    } catch (e) {
+      return Text('Erreur',
         style: TextStyle(
           color: Colors.red,
           fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
@@ -754,6 +772,7 @@ class MyApp extends StatefulWidget {  // L'application
 }
 
 class _MyAppState extends State<MyApp> {
+
   @override
   void initState() {
     super.initState();

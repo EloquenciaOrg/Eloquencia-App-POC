@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:eloquencia/article.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/discount.dart';
 import 'package:eloquencia/helloasso.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class HomePage extends StatefulWidget {  // La page d'accueil
   const HomePage({super.key});
@@ -15,22 +19,52 @@ class HomePage extends StatefulWidget {  // La page d'accueil
 
 class _HomePageState extends State<HomePage> {
   final pageID = 'Accueil';
-  late Map<String, dynamic> blogInfo;
-  String blogTitle = '';
-  Image? blogPic;
   List<Widget> blogList = [];
+  late StreamSubscription subscription;
+  var isDeviceConnected = false;
+  bool isAlertSet = false;
 
   @override
   void initState() {
-    super.initState();
+    getConnectivity();
     _initBlogList();
+    super.initState();
+  }
+
+  getConnectivity() {
+    subscription = Connectivity().onConnectivityChanged.listen(
+      (List<ConnectivityResult> result) async {
+        isDeviceConnected = await InternetConnectionChecker.instance.hasConnection;
+        if (!isDeviceConnected && isAlertSet == false) {
+          showDialogBox();
+          setState(() {
+            isAlertSet = true;
+          });
+        }
+      }
+    );
   }
 
   Future<void> _initBlogList() async {
-    blogList = await showBlog(context, 2);
-    setState(() {
-      blogList = blogList;
-    });
+    try {
+      blogList = await showBlog(context, 2);
+      setState(() {
+        blogList = blogList;
+      });
+    } catch (e) {
+      blogList = [
+        Text('Problème de connexion',
+          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
+        ),
+      ];
+    }
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -39,7 +73,8 @@ class _HomePageState extends State<HomePage> {
       appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
       endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
       body: RefreshIndicator(
-        onRefresh: () async{
+        color: yellow,
+        onRefresh: () async {
           _initBlogList();
         },
         child: ListView(
@@ -207,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ArticlePage()));
+                            MaterialPageRoute(builder: (context) => const BlogPage()));
                         },
                         child: Text('Voir tous les articles',
                           style: Theme.of(context).textTheme.bodyMedium
@@ -222,6 +257,36 @@ class _HomePageState extends State<HomePage> {
           ]
         ),
       )
+    );
+  }
+
+  showDialogBox() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pas de connexion Internet'),
+          content: const Text('Veuillez vérifier votre connexion Internet.'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+                setState(() {
+                  isAlertSet = false;  // Réinitialiser l'état de l'alerte
+                });
+                isDeviceConnected = await InternetConnectionChecker.instance.hasConnection;
+                if (!isDeviceConnected) {
+                  showDialogBox();
+                  setState(() {
+                    isAlertSet = true;  // Réinitialiser l'état de l'alerte
+                  });
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      }
     );
   }
 }

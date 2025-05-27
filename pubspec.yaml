@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   carousel_slider: ^5.0.0
+  connectivity_plus: ^6.1.4
   cupertino_icons: ^1.0.8
   device_info_plus: ^11.4.0
   file_picker: ^10.1.2
@@ -38,6 +39,7 @@ dependencies:
   flutter_native_splash: ^2.4.6
   http: ^1.4.0
   http_parser: ^4.1.2
+  internet_connection_checker: ^3.0.1
   mime: ^2.0.0
   mysql1: ^0.20.0
   webview_flutter: ^4.11.0

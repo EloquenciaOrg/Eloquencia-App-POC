@@ -2,7 +2,8 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class ArticlePage extends StatefulWidget {
-  const ArticlePage({super.key});
+  final int articleId; 
+  const ArticlePage({super.key, required this.articleId});
 
   @override
   State<ArticlePage> createState() => _ArticlePageState();
@@ -20,7 +21,7 @@ class _ArticlePageState extends State<ArticlePage> {
   }
 
   Future<void> _initBlogArticle() async {
-    blogArticle = await showArticle(context, 19);
+    blogArticle = await showArticle(context, widget.articleId);
     setState(() {
       blogArticle = blogArticle;
     });
@@ -29,23 +30,23 @@ class _ArticlePageState extends State<ArticlePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          appBar: appBarEloquencia(context, pageID, 0),
-          endDrawer: endDrawerEloquencia(context, pageID),
-          body: ListView(
-            children: [
-              Center(
-                child: SizedBox(
-                  width: objectWidth(context),
-                  child: Column(
-                    children: [
-                      SizedBox(height: appBarHeight(context)),
-                      blogArticle
-                    ]
-                  )
-                )
+      appBar: appBarEloquencia(context, pageID, 0),
+      endDrawer: endDrawerEloquencia(context, pageID),
+      body: ListView(
+        children: [
+          Center(
+            child: SizedBox(
+              width: objectWidth(context),
+              child: Column(
+                children: [
+                  SizedBox(height: appBarHeight(context)),
+                  blogArticle
+                ]
               )
-            ]
+            )
           )
-        );
+        ]
+      )
+    );
   }
 }
