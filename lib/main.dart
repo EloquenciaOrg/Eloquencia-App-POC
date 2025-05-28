@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:bcrypt/bcrypt.dart';
 import 'package:eloquencia/about.dart';
 import 'package:eloquencia/article.dart';
 import 'package:eloquencia/blog.dart';
@@ -17,16 +18,22 @@ import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html_iframe/flutter_html_iframe.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
 // Variables globales
 
+// Sécurité
+final storage = FlutterSecureStorage();
 
 // Constantes globales
 
@@ -294,18 +301,47 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
   }
 }
 
-void apiLogin() async {
+Future apiLogin(context, email, password) async {
   final apiLogin = await http.post(
-    Uri.parse('http://10.200.0.5/api/login'),
+    Uri.parse('https://dev.eloquencia.org/api/login'),
     body: {
-      'username': 'toto',
-      'password': 'toto',
+      'username': email,
+      'password': BCrypt.hashpw(password, BCrypt.gensalt())
     }
   );
   if (apiLogin.statusCode != 200) {
     print('Failed to retrieve the http package!');
   }
+  if (apiLogin.body.isEmpty) {
+    throw Exception('Aucune information reçue');
+  }
   print(apiLogin.body);
+  var login = jsonDecode(apiLogin.body) as Map<String, dynamic>;
+  print(login['success']);
+  if (login['success'] == false) {
+    return Text(login['message'],
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+      textAlign: TextAlign.center,
+    );
+  } else if (login['success'] == true) {
+    return Text(login['message'],
+      style: TextStyle(
+        color: Colors.green,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+      textAlign: TextAlign.center,
+    );
+  } else {
+    return Text('Erreur inconnue',
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+    );
+  }
 }
 
 class BlogInfo {  // Classe pour stocker les informations du blog
@@ -561,9 +597,19 @@ Future<Widget> showArticle(context, int articleId) async {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: mediumHeight(context)),
-            Text(blogInfo['content'],
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.justify,
+            // Text(blogInfo['content']),
+            Html(data: blogInfo['content'].replaceAllMapped(RegExp(r'src="\/\/'), (match) => 'src="https://'),
+              extensions: [
+                IframeHtmlExtension()
+              ],
+              style: {'body': Style(
+                fontSize: FontSize(Theme.of(context).textTheme.bodyMedium!.fontSize!),
+                textAlign: TextAlign.justify,
+              ),
+              'img': Style(
+                width: Width(objectWidth(context))
+              )
+              },
             ),
             SizedBox(height: mediumHeight(context)),
           ]
@@ -634,8 +680,8 @@ Future apiContact(context, name, email, message) async {
     }
   );
   if (apiContact.statusCode != 200) {
-    print('Failed to retrieve the http package!');
-    return 'Failed to retrieve the http package!';
+    print('Une erreur est survenue');
+    return 'Une erreur est survenue';
   }
   print(apiContact.body);
   var contact = jsonDecode(apiContact.body) as Map<String, dynamic>;
@@ -724,8 +770,8 @@ Future apiDiscount(context, name, email, File? proof) async {
     
 
       if (apiDiscount.statusCode != 200) {
-        print('Failed to retrieve the http package!');
-        return 'Failed to retrieve the http package!';
+        print('Une erreur est survenue');
+        return 'Une erreur est survenue';
       }
       print(apiDiscount.body.split(r'>').last);
       var discount = apiDiscount.body.split(r'>').last;

@@ -12,6 +12,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool isChecked = false;  // Statut de la case à cocher
   final pageID = "Connexion";
+  final email = TextEditingController();
+  final password = TextEditingController();
+  Widget? errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                                           children: [
                                             SizedBox(height: largeHeight(context)),
                                             TextField(  // Champ de texte pour la connexion
+                                            controller: email,
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
@@ -107,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                                             ),
                                             SizedBox(height: largeHeight(context)),
                                             TextField(  // Champ de texte pour la connexion
+                                            controller: password,
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
@@ -153,6 +158,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 ),
                                               ],
                                             ),
+                                            SizedBox(height: smallHeight(context)),
+                                            if (errorMessage != null) 
+                                              errorMessage!,
                                             SizedBox(height: smallHeight(context)),  // TODO Case à cocher pour accepter les conditions générales
                                           ],
                                         ),
@@ -178,8 +186,11 @@ class _LoginPageState extends State<LoginPage> {
                                                   ),
                                                 ),
                                                 
-                                                onPressed: () {
-                                                  apiLogin();  // TODO : faire la connexion
+                                                onPressed: () async {
+                                                  errorMessage = await apiLogin(context, email.text, password.text);
+                                                setState(() {
+                                                  errorMessage = errorMessage;
+                                                });  // TODO : faire la connexion
                                                 },
                                                 child: Text('Connexion',
                                                   style: Theme.of(context).textTheme.bodyMedium

@@ -536,16 +536,6 @@ class JoinPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: largeHeight(context)),
-                  const Divider(
-                    color: black,
-                    thickness: 3,
-                    height: 0,
-                  ),
-                  SizedBox(height: largeHeight(context)),
-                  Text('Postes disponibles',
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
                 ]
               ),
             ),
