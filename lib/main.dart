@@ -302,44 +302,105 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
 }
 
 Future apiLogin(context, email, password) async {
-  final apiLogin = await http.post(
-    Uri.parse('https://dev.eloquencia.org/api/login'),
-    body: {
-      'username': email,
-      'password': BCrypt.hashpw(password, BCrypt.gensalt())
-    }
-  );
-  if (apiLogin.statusCode != 200) {
-    print('Failed to retrieve the http package!');
-  }
-  if (apiLogin.body.isEmpty) {
-    throw Exception('Aucune information reçue');
-  }
-  print(apiLogin.body);
-  var login = jsonDecode(apiLogin.body) as Map<String, dynamic>;
-  print(login['success']);
-  if (login['success'] == false) {
-    return Text(login['message'],
-      style: TextStyle(
-        color: Colors.red,
-        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-      ),
-      textAlign: TextAlign.center,
-    );
-  } else if (login['success'] == true) {
-    return Text(login['message'],
-      style: TextStyle(
-        color: Colors.green,
-        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-      ),
-      textAlign: TextAlign.center,
-    );
+  var emailErr = '';
+  if (password.length == 0) {
   } else {
-    return Text('Erreur inconnue',
+    password = BCrypt.hashpw(password, BCrypt.gensalt());
+  }
+  try {
+    final apiLogin = await http.post(
+      Uri.parse('https://dev.eloquencia.org/api/login'),
+      body: {
+        'email': email,
+        'password': password
+      }
+    );
+    var login = jsonDecode(apiLogin.body) as Map<String, dynamic>;
+    print(login);
+    if (apiLogin.statusCode == 200) {
+      print('Connexion réussie');
+    }
+    if (apiLogin.statusCode == 201) {
+      throw Exception('Les données ont été créées avec succès');
+    }
+    if (apiLogin.statusCode == 403) {
+      throw Exception('Nécessite une authentification JWT');
+    }
+    if (apiLogin.statusCode == 404) {
+      throw Exception('Rien n\'a été trouvé');
+    }
+    if (apiLogin.statusCode == 405) {
+      throw Exception('Méthode incorrecte');
+    }
+    if (apiLogin.statusCode == 500) {
+      throw Exception('Erreur interne du serveur');
+    }
+    if (apiLogin.statusCode == 503) {
+      throw Exception('Serveur en maintenance');
+    }
+    if (apiLogin.body.isEmpty) {
+      throw Exception('Aucune information reçue');
+    }
+    print(apiLogin.body);
+    if (login['status'] == true) {
+        return Text(login['message'],
+          style: TextStyle(
+            color: Colors.green,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.center,
+        );
+      }
+    if (login['status'] == 'error') {
+      if (login['errors'] == null) {
+        return Text(login['message'],
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.center,
+        );
+      }
+      if (login['errors']['email'] != null) {
+        for (var i = 0; i < login['errors']['email'].length; i++) {
+          if (emailErr == '') {
+            emailErr = emailErr + login['errors']['email'][i];
+          } else {
+            emailErr = '$emailErr\n${login['errors']['email'][i]}';  // Concatène les erreurs d'email
+          }
+        }
+      }
+      if (login['errors']['password'] != null) {
+        for (var i = 0; i < login['errors']['password'].length; i++) {
+          if (emailErr == '') {
+            emailErr = emailErr + login['errors']['password'][i];
+          } else {
+            emailErr = '$emailErr\n${login['errors']['password'][i]}';  // Concatène les erreurs de mot de passe
+          }
+        }
+      }
+      return Text(emailErr,
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+        textAlign: TextAlign.center,
+      );
+    } else {
+      return Text('Erreur inconnue',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    }
+  } catch (e) {
+    return Text('Erreur',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
       ),
+      textAlign: TextAlign.center,
     );
   }
 }
@@ -396,7 +457,7 @@ Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogP
                 ),
                 child: Column(
                   children: [
-                    // blogPic!,
+                    //blogPic!, TODO arranger le bug
                     SizedBox(height: mediumHeight(context)),
                     SizedBox(
                       width: objectWidth(context) - getWidth(context, 50),
@@ -493,29 +554,55 @@ Future<void> showBlogInfo(context, int blogNB) async {  // Fonction pour affiche
 }
 
 Future<List<dynamic>> getBlog(context) async {
-  final apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
-    Uri.parse('https://dev.eloquencia.org/api/blog')
-  );
-
-  // If the request didn't succeed, throw an exception
-  if (apiBlog.statusCode != 200) {
-    print(apiBlog.statusCode);
-    throw BlogRetrievalException(
-      statusCode: apiBlog.statusCode,
+  try {
+    var apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
+      Uri.parse('https://dev.eloquencia.org/api/blog?info')
     );
-  }
-  
-  if (apiBlog.body.isEmpty) {
-    throw Exception('Aucune information reçue');
-  } final List<dynamic> blogList = json.decode(apiBlog.body);
-  
-  if (blogList.isEmpty) {
-    throw Exception('Aucun blog à afficher');
-  }
 
-  print('Blog List: $blogList');
-  return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+    var info = json.decode(apiBlog.body);
+    print(apiBlog.body);
+    print(info);
+    // If the request didn't succeed, throw an exception
+    if (info['response_code'] == 200) {
+      print('Connexion réussie');
+    }
+    if (info['response_code'] == 201) {
+      throw Exception('Les données ont été créées avec succès');
+    }
+    if (info['response_code'] == 403) {
+      throw Exception('Nécessite une authentification JWT');
+    }
+    if (info['response_code'] == 404) {
+      throw Exception('Rien n\'a été trouvé');
+    }
+    if (info['response_code'] == 405) {
+      throw Exception('Méthode incorrecte');
+    }
+    if (info['response_code'] == 500) {
+      throw Exception('Erreur interne du serveur');
+    }
+    if (info['response_code'] == 503) {
+      throw Exception('Serveur en maintenance');
+    }
+    if (apiBlog.body.isEmpty) {
+      throw Exception('Aucune information reçue');
+    }
+    
+    apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
+      Uri.parse('https://dev.eloquencia.org/api/blog?page=page')
+    );
+    final List<dynamic> blogList = json.decode(apiBlog.body);
+    
+    if (blogList.isEmpty) {
+      throw Exception('Aucun blog à afficher');
+    }
 
+    print('Article List: $blogList');
+    return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+  } catch (e) {
+    print('Erreur lors de la récupération des blogs: $e');
+    throw BlogRetrievalException(statusCode: e is http.Response ? e.statusCode : null);
+  }
 }
 
 class BlogRetrievalException implements Exception {
@@ -536,13 +623,13 @@ Future<List<Widget>> showBlog(context, int showNb) async {
     for (var i = 0; i < showNb; i++) {
       if (blogList[i] is Map<String, dynamic>) {
         blogInfo = blogList[i];
-        // if (blogInfo['pic'] != null) {
-        //   print(blogPic);
-        //   blogPic = Image.asset(blogInfo['pic']);
-        // } else {
-        //   blogPic = null;
-        //   print(null);
-        // }
+        if (blogInfo['pic'] != null) {
+          print(blogPic);
+          blogPic = Image.asset(blogInfo['pic']);
+        } else {
+          blogPic = null;
+          print(null);
+        }
 
         print('Blog $i Info: $blogInfo');
         blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
@@ -671,37 +758,66 @@ Future<Widget> showArticle(context, int articleId) async {
 }
 
 Future apiContact(context, name, email, message) async {
-  final apiContact = await http.post(
-    Uri.parse('https://dev.eloquencia.org/api/contact'),
-    body: {
-      'name': name,
-      'email': email,
-      'message': message
+  try {
+    final apiContact = await http.post(
+      Uri.parse('https://dev.eloquencia.org/api/contact'), // TODO résoudre erreur
+      body: {
+        'name': name,
+        'email': email,
+        'message': message
+      }
+    );
+    if (apiContact.statusCode == 200) {
+      print('Connexion réussie');
     }
-  );
-  if (apiContact.statusCode != 200) {
-    print('Une erreur est survenue');
-    return 'Une erreur est survenue';
-  }
-  print(apiContact.body);
-  var contact = jsonDecode(apiContact.body) as Map<String, dynamic>;
-  print(contact);
-  if (contact['status'] == 'error') {
-    return Text(contact['message'],
-      style: TextStyle(
-        color: Colors.red,
-        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-      ),
-    );
-  } else if (contact['status'] == 'success') {
-    return Text(contact['message'],
-      style: TextStyle(
-        color: Colors.green,
-        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-      ),
-    );
-  } else {
-    return Text('Erreur inconnue',
+    if (apiContact.statusCode == 201) {
+      throw Exception('Les données ont été créées avec succès');
+    }
+    if (apiContact.statusCode == 403) {
+      throw Exception('Nécessite une authentification JWT');
+    }
+    if (apiContact.statusCode == 404) {
+      throw Exception('Rien n\'a été trouvé');
+    }
+    if (apiContact.statusCode == 405) {
+      throw Exception('Méthode incorrecte');
+    }
+    if (apiContact.statusCode == 500) {
+      throw Exception('Erreur interne du serveur');
+    }
+    if (apiContact.statusCode == 503) {
+      throw Exception('Serveur en maintenance');
+    }
+    if (apiContact.body.isEmpty) {
+      throw Exception('Aucune information reçue');
+    }
+    print(apiContact.body);
+    var contact = jsonDecode(apiContact.body) as Map<String, dynamic>;
+    print(contact);
+    if (contact['status'] == 'error') {
+      return Text(contact['message'],
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    } else if (contact['status'] == 'success') {
+      return Text(contact['message'],
+        style: TextStyle(
+          color: Colors.green,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    } else {
+      return Text('Erreur inconnue',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+      );
+    }
+  } catch (e) {
+    return Text('Erreur, $e',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
@@ -718,8 +834,8 @@ Future pickFile() async {
   }
 }
 
-Future apiDiscount(context, name, email, File? proof) async {
-  if (proof == null) {
+Future apiDiscount(context, name, email, File? file, cgu) async {
+  if (file == null) {
     return Text('Aucun fichier sélectionné',
       style: TextStyle(
         color: Colors.red,
@@ -736,12 +852,12 @@ Future apiDiscount(context, name, email, File? proof) async {
     );
   } else {
     try {
-      var uri = Uri.parse('https://dev.eloquencia.org/api/discount');
+      var uri = Uri.parse('https://dev.eloquencia.org/api/discount'); // TODO résoudre erreur
       var request = http.MultipartRequest('POST', uri);
       request.fields['name'] = name;
       request.fields['email'] = email;
       // get the mediatype of the file
-      var mimeType = lookupMimeType(proof.path);
+      var mimeType = lookupMimeType(file.path);
       print(mimeType);
       var mimeTypeArray = mimeType?.split('/');
       print(mimeTypeArray);
@@ -759,19 +875,45 @@ Future apiDiscount(context, name, email, File? proof) async {
       }
       request.files.add(
         await http.MultipartFile.fromPath(
-          'proof',
-          proof.path,
-          contentType: mediaType, // or 'image/png', adjust as needed
+          'file',
+          file.path,
+          contentType: mediaType,
         ),
       );
+      if (cgu == true) {
+        request.fields['cgu'] = 'accepted';
+      } else {
+        request.fields['cgu'] = '';
+      }
+      
     
       var streamedResponse = await request.send();
       var apiDiscount = await http.Response.fromStream(streamedResponse);
-    
+      print(apiDiscount.body);
 
-      if (apiDiscount.statusCode != 200) {
-        print('Une erreur est survenue');
-        return 'Une erreur est survenue';
+      if (apiDiscount.statusCode == 200) {
+        print('Connexion réussie');
+      }
+      if (apiDiscount.statusCode == 201) {
+        throw Exception('Les données ont été créées avec succès');
+      }
+      if (apiDiscount.statusCode == 403) {
+        throw Exception('Nécessite une authentification JWT');
+      }
+      if (apiDiscount.statusCode == 404) {
+        throw Exception('Rien n\'a été trouvé');
+      }
+      if (apiDiscount.statusCode == 405) {
+        throw Exception('Méthode incorrecte');
+      }
+      if (apiDiscount.statusCode == 500) {
+        throw Exception('Erreur interne du serveur');
+      }
+      if (apiDiscount.statusCode == 503) {
+        throw Exception('Serveur en maintenance');
+      }
+      if (apiDiscount.body.isEmpty) {
+        throw Exception('Aucune information reçue');
       }
       print(apiDiscount.body.split(r'>').last);
       var discount = apiDiscount.body.split(r'>').last;
@@ -800,7 +942,7 @@ Future apiDiscount(context, name, email, File? proof) async {
         );
       }
     } catch (e) {
-      return Text('Erreur',
+      return Text('Erreur ,$e',
         style: TextStyle(
           color: Colors.red,
           fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize

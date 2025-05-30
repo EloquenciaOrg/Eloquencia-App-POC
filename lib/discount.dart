@@ -16,7 +16,7 @@ class _DiscountPageState extends State<DiscountPage> {
   final name = TextEditingController();
   final email = TextEditingController();
   Widget? errorMessage;
-  bool isChecked = false;  // Statut de la case à cocher
+  bool cgu = false;  // Statut de la case à cocher
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _DiscountPageState extends State<DiscountPage> {
       if (states.any(interactiveStates.contains)) {
         return yellow2;  // Couleur de la case à cocher si elle est pressée, survolée ou focalisée
       }
-      else if (isChecked == true) {
+      else if (cgu == true) {
         return yellow;  // Couleur de la case à cocher si elle est cochée
       }
       return white;
@@ -213,10 +213,10 @@ class _DiscountPageState extends State<DiscountPage> {
                                                 Checkbox(
                                                   checkColor: white,
                                                   fillColor: WidgetStateProperty.resolveWith(getColor),
-                                                  value: isChecked,
+                                                  value: cgu,
                                                   onChanged: (bool? value) {
                                                     setState(() {
-                                                      isChecked = value!;  // Mettre à jour le statut de la case à cocher
+                                                      cgu = value!;  // Mettre à jour le statut de la case à cocher
                                                     });
                                                   },
                                                 ),
@@ -229,7 +229,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                   ),
                                                   onTap: () {
                                                     setState(() {
-                                                      isChecked = !isChecked;  // Inverser le statut de la case à cocher
+                                                      cgu = !cgu;  // Inverser le statut de la case à cocher
                                                     });
                                                   },
                                                 ),
@@ -259,7 +259,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               ),
                                               
                                               onPressed: () async{
-                                                errorMessage = await apiDiscount(context, name.text, email.text, file);
+                                                errorMessage = await apiDiscount(context, name.text, email.text, file, cgu);
                                                 if (!mounted) return;
                                                 setState(() {
                                                   errorMessage = errorMessage;
