@@ -17,7 +17,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show SystemChrome, SystemUiMode, rootBundle;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -395,7 +395,7 @@ Future apiLogin(context, email, password) async {
       );
     }
   } catch (e) {
-    return Text('Erreur',
+    return Text('$e',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
@@ -758,71 +758,107 @@ Future<Widget> showArticle(context, int articleId) async {
 }
 
 Future apiContact(context, name, email, message) async {
-  try {
-    final apiContact = await http.post(
-      Uri.parse('https://dev.eloquencia.org/api/contact'), // TODO résoudre erreur
-      body: {
-        'name': name,
-        'email': email,
-        'message': message
-      }
-    );
-    if (apiContact.statusCode == 200) {
-      print('Connexion réussie');
-    }
-    if (apiContact.statusCode == 201) {
-      throw Exception('Les données ont été créées avec succès');
-    }
-    if (apiContact.statusCode == 403) {
-      throw Exception('Nécessite une authentification JWT');
-    }
-    if (apiContact.statusCode == 404) {
-      throw Exception('Rien n\'a été trouvé');
-    }
-    if (apiContact.statusCode == 405) {
-      throw Exception('Méthode incorrecte');
-    }
-    if (apiContact.statusCode == 500) {
-      throw Exception('Erreur interne du serveur');
-    }
-    if (apiContact.statusCode == 503) {
-      throw Exception('Serveur en maintenance');
-    }
-    if (apiContact.body.isEmpty) {
-      throw Exception('Aucune information reçue');
-    }
-    print(apiContact.body);
-    var contact = jsonDecode(apiContact.body) as Map<String, dynamic>;
-    print(contact);
-    if (contact['status'] == 'error') {
-      return Text(contact['message'],
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-        ),
-      );
-    } else if (contact['status'] == 'success') {
-      return Text(contact['message'],
-        style: TextStyle(
-          color: Colors.green,
-          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-        ),
-      );
-    } else {
-      return Text('Erreur inconnue',
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-        ),
-      );
-    }
-  } catch (e) {
-    return Text('Erreur, $e',
+  var emailDomains = await loadAsset(context);
+  print(emailDomains);
+  var emailDomainList = emailDomains.split('\n');
+  print(emailDomainList);
+  if (email == null || email.isEmpty) {
+    return Text('Veuillez entrer votre adresse e-mail',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
       ),
+      textAlign: TextAlign.justify
     );
+  } else {
+    if (email.contains('@') && emailDomainList.contains(email.split('@').last)) {
+      if (email.split('@').last == 'icloud.com' || email.split('@').last == 'sfr.fr') {
+        return Text('L\'adresse e-mail ne peut pas être une adresse iCloud ou SFR',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.justify,
+        );
+      } else if (name == null || name.isEmpty) {
+        return Text('Veuillez entrer votre nom',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.justify
+        );
+      } else {
+        try {
+          final apiContact = await http.post(
+            Uri.parse('https://dev.eloquencia.org/api/contact'), // TODO résoudre erreur
+            body: {
+              'name': name,
+              'email': email,
+              'message': message
+            }
+          );
+          var contactRes = jsonDecode(apiContact.body) as Map<String, dynamic>;
+          print(contactRes);
+          if (contactRes['status'] == 'success') {
+            return Text('Le message a été envoyé avec succès',
+              style: TextStyle(
+                color: Colors.green,
+                fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+              ),
+              textAlign: TextAlign.justify
+            );
+          } else {
+            if (contactRes['response_code'] == 200) {
+              print('Connexion réussie');
+            }
+            if (contactRes['response_code'] == 201) {
+              throw Exception('Le message a été envoyé avec succès');
+            }
+            if (contactRes['response_code'] == 403) {
+              throw Exception('Nécessite une authentification JWT');
+            }
+            if (contactRes['response_code'] == 404) {
+              throw Exception('Rien n\'a été trouvé');
+            }
+            if (contactRes['response_code'] == 405) {
+              throw Exception('Méthode incorrecte');
+            }
+            if (contactRes['response_code'] == 412) {
+              throw Exception('Veuillez remplir le champ "Message"');
+            }
+            if (contactRes['response_code'] == 500) {
+              throw Exception('Erreur interne du serveur');
+            }
+            if (contactRes['response_code'] == 503) {
+              throw Exception('Serveur en maintenance');
+            }
+            if (apiContact.body.isEmpty) {
+              throw Exception('Aucune information reçue');
+            }
+            if (contactRes['status'] == 'error') {
+              throw Exception('Erreur Inconnue');
+            }
+          }
+        } catch (e) {
+          return Text(e.toString().split(':').last,
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+            ),
+            textAlign: TextAlign.justify
+          );
+        }
+      }
+    } else {
+      return Text('Veuillez entrer une adresse e-mail valide',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+        ),
+        textAlign: TextAlign.justify
+      );
+    }
   }
 }
 
@@ -834,122 +870,154 @@ Future pickFile() async {
   }
 }
 
+Future<String> loadAsset(BuildContext context) async {
+  return await DefaultAssetBundle.of(context).loadString('assets/all_email_provider_domains.txt');
+}
+
 Future apiDiscount(context, name, email, File? file, cgu) async {
+  var emailDomains = await loadAsset(context);
+  print(emailDomains);
+  var emailDomainList = emailDomains.split('\n');
+  print(emailDomainList);
   if (file == null) {
     return Text('Aucun fichier sélectionné',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
       ),
+      textAlign: TextAlign.justify
     );
-  } else if (email.split('@').last == 'icloud.com' || email.split('@').last == 'sfr.fr') {
-    return Text('L\'adresse e-mail ne peut pas être une adresse iCloud ou SFR',
+  } else if (email == null || email.isEmpty) {
+    return Text('Veuillez entrer votre adresse e-mail',
       style: TextStyle(
         color: Colors.red,
         fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
       ),
-      textAlign: TextAlign.justify,
+      textAlign: TextAlign.justify
     );
   } else {
-    try {
-      var uri = Uri.parse('https://dev.eloquencia.org/api/discount'); // TODO résoudre erreur
-      var request = http.MultipartRequest('POST', uri);
-      request.fields['name'] = name;
-      request.fields['email'] = email;
-      // get the mediatype of the file
-      var mimeType = lookupMimeType(file.path);
-      print(mimeType);
-      var mimeTypeArray = mimeType?.split('/');
-      print(mimeTypeArray);
-      MediaType? mediaType;
-      if (mimeTypeArray != null && mimeTypeArray.length == 2) {
-        if (mimeTypeArray[1] != 'jpeg' && mimeTypeArray[1] != 'png' && mimeTypeArray[1] != 'pdf'){
-          return Text('Le fichier doit être au format JPEG, PNG ou PDF',
+    if (email.contains('@') && emailDomainList.contains(email.split('@').last)) {
+      if (email.split('@').last == 'icloud.com' || email.split('@').last == 'sfr.fr') {
+        return Text('L\'adresse e-mail ne peut pas être une adresse iCloud ou SFR',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.justify,
+        );
+      } else if (name == null || name.isEmpty) {
+        return Text('Veuillez entrer votre nom',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+          ),
+          textAlign: TextAlign.justify
+        );
+      } else {
+        try {
+          var uri = Uri.parse('https://dev.eloquencia.org/api/discount'); // TODO résoudre erreur
+          var request = http.MultipartRequest('POST', uri);
+          request.fields['name'] = name;
+          request.fields['email'] = email;
+          
+          // get the mediatype of the file
+          var mimeType = lookupMimeType(file.path);
+          print(mimeType);
+          var mimeTypeArray = mimeType?.split('/');
+          print(mimeTypeArray);
+          MediaType? mediaType;
+          if (mimeTypeArray != null && mimeTypeArray.length == 2) {
+            if (mimeTypeArray[1] != 'jpeg' && mimeTypeArray[1] != 'png' && mimeTypeArray[1] != 'pdf') {
+              return Text('Le fichier doit être au format JPEG, PNG ou PDF',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+                ),
+              );
+            }
+            mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
+          }
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'file',
+              file.path,
+              contentType: mediaType,
+            ),
+          );
+          if (cgu == true) {
+            var streamedResponse = await request.send();
+            var apiDiscount = await http.Response.fromStream(streamedResponse);
+            print(apiDiscount.body);
+            var discountRes = jsonDecode(apiDiscount.body) as Map<String, dynamic>;
+            if (discountRes['status'] == 'created') {
+              return Text('Les données ont été créées avec succès',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+                ),
+                textAlign: TextAlign.justify
+              );
+            } else {
+              if (discountRes['response_code'] == 200) {
+                print('Connexion réussie');
+              }
+              if (discountRes['response_code'] == 201) {
+                throw Exception('Les données ont été créées avec succès');
+              }
+              if (discountRes['response_code'] == 403) {
+                throw Exception('Nécessite une authentification JWT');
+              }
+              if (discountRes['response_code'] == 404) {
+                throw Exception('Rien n\'a été trouvé');
+              }
+              if (discountRes['response_code'] == 405) {
+                throw Exception('Méthode incorrecte');
+              }
+              if (discountRes['response_code'] == 412) {
+                throw Exception('Le fichier n\'est pas supporté');
+              }
+              if (discountRes['response_code'] == 500) {
+                throw Exception('Erreur interne du serveur');
+              }
+              if (discountRes['response_code'] == 503) {
+                throw Exception('Serveur en maintenance');
+              }
+              if (apiDiscount.body.isEmpty) {
+                throw Exception('Aucune information reçue');
+              }
+              if (discountRes['status'] == 'error') {
+                throw Exception('Erreur Inconnue');
+              }
+            }
+          } else {
+            return Text('Veuillez accepter les Conditions Générales d\'Utilisation',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+              ),
+              textAlign: TextAlign.justify
+            );
+          }
+        } catch (e) {
+          return Text(e.toString().split(':').last,
             style: TextStyle(
               color: Colors.red,
               fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
             ),
+            textAlign: TextAlign.justify
           );
         }
-        mediaType = MediaType(mimeTypeArray[0], mimeTypeArray[1]);
       }
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          file.path,
-          contentType: mediaType,
-        ),
-      );
-      if (cgu == true) {
-        request.fields['cgu'] = 'accepted';
-      } else {
-        request.fields['cgu'] = '';
-      }
-      
-    
-      var streamedResponse = await request.send();
-      var apiDiscount = await http.Response.fromStream(streamedResponse);
-      print(apiDiscount.body);
-
-      if (apiDiscount.statusCode == 200) {
-        print('Connexion réussie');
-      }
-      if (apiDiscount.statusCode == 201) {
-        throw Exception('Les données ont été créées avec succès');
-      }
-      if (apiDiscount.statusCode == 403) {
-        throw Exception('Nécessite une authentification JWT');
-      }
-      if (apiDiscount.statusCode == 404) {
-        throw Exception('Rien n\'a été trouvé');
-      }
-      if (apiDiscount.statusCode == 405) {
-        throw Exception('Méthode incorrecte');
-      }
-      if (apiDiscount.statusCode == 500) {
-        throw Exception('Erreur interne du serveur');
-      }
-      if (apiDiscount.statusCode == 503) {
-        throw Exception('Serveur en maintenance');
-      }
-      if (apiDiscount.body.isEmpty) {
-        throw Exception('Aucune information reçue');
-      }
-      print(apiDiscount.body.split(r'>').last);
-      var discount = apiDiscount.body.split(r'>').last;
-      var discountRes = jsonDecode(discount) as Map<String, dynamic>;
-      print(discountRes);
-      if (discountRes['status'] == 'error') {
-        return Text(discountRes['message'],
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-          ),
-        );
-      } else if (discountRes['status'] == 'success') {
-        return Text(discountRes['message'],
-          style: TextStyle(
-            color: Colors.green,
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-          ),
-        );
-      } else {
-        return Text('Erreur inconnue',
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-          ),
-        );
-      }
-    } catch (e) {
-      return Text('Erreur ,$e',
+    } else {
+      return Text('Veuillez entrer une adresse e-mail valide',
         style: TextStyle(
           color: Colors.red,
           fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
         ),
+        textAlign: TextAlign.justify
       );
     }
-  }
+  } 
 }
 
 class MyApp extends StatefulWidget {  // L'application

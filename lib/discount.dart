@@ -223,7 +223,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                 GestureDetector(
                                                   child: SizedBox(
                                                     width: getWidth(context, 250),
-                                                    child: Text('Accepter les conditions générales',
+                                                    child: Text('Accepter les conditions générales d\'utilisation',
                                                       style: Theme.of(context).textTheme.bodyMedium,
                                                     ),
                                                   ),
