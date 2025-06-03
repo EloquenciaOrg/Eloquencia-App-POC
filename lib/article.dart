@@ -21,7 +21,7 @@ class _ArticlePageState extends State<ArticlePage> {
   }
 
   Future<void> _initBlogArticle() async {
-    blogArticle = await showArticle(context, widget.articleId);
+    blogArticle = await showArticle(context, widget.articleId, 0);
     setState(() {
       blogArticle = blogArticle;
     });

@@ -11,32 +11,29 @@ class BlogPage extends StatefulWidget {
 class _BlogPageState extends State<BlogPage> {
   final pageID = 'Blog';
   List<Widget> blogList = [];
+  int nbPages = 1;  // Nombre de pages du blog
 
   @override
   void initState() {
     super.initState();
-    _initBlogList();
-      // try {
-      //   blogInfo = (await getBlog())[0];
-      // } on BlogRetrievalException catch (e) {
-      //   print(e);
-      //   return;
-      // }
-      // setState(() {
-      //   if (blogInfo.pic != null) {
-      //     blogPic = Image.memory(base64Decode(blogInfo.pic!));
-      //   }
-      //   blogTitle = blogInfo.title;
-      //   showBlogInfo();
-      // });
+    _initBlogList(1);
+    setNbPages();
   }
 
-  Future<void> _initBlogList() async {
-    blogList = await showBlog(context, 20);
+  Future<void> _initBlogList(nbPage) async {
+    blogList = await showBlogPage(context, nbPage);
     setState(() {
       blogList = blogList;
     });
   }
+  
+  Future<void> setNbPages() async {
+    nbPages = await getNbPages();
+    setState(() {
+      nbPages = nbPages;
+    });
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +71,8 @@ class _BlogPageState extends State<BlogPage> {
                       ),
                     ),
                     onPressed: () async {
-                      _initBlogList();
+                      _initBlogList(1);
+                      setNbPages();
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -88,6 +86,30 @@ class _BlogPageState extends State<BlogPage> {
                           style: Theme.of(context).textTheme.bodyMedium),
                       ],
                     )
+                  ),
+                  SizedBox(height: mediumHeight(context)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (var i = 1; i <= nbPages; i++)
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                            shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            
+                          ),
+                          onPressed: () {
+                            _initBlogList(i);
+                          },
+                          child: Text('$i',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          )
+                        )
+                    ],
                   ),
                   SizedBox(height: mediumHeight(context)),
                   ...blogList

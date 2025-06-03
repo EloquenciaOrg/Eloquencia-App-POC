@@ -6,7 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/discount.dart';
-import 'package:eloquencia/helloasso.dart';
+import 'package:eloquencia/join.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
@@ -49,13 +49,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initBlogList() async {
     try {
-      blogList = await showBlog(context, 2);
+      blogList = await showBlogHome(context);
       setState(() {
         blogList = blogList;
       });
     } catch (e) {
       blogList = [
         Text('Problème de connexion',
+          // ignore: use_build_context_synchronously
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -122,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const HelloAssoPage()),
+                                MaterialPageRoute(builder: (context) => const JoinPage()),
                               );
                             },
                             child:  Text('Adhérer',

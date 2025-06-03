@@ -9,7 +9,7 @@ import 'package:eloquencia/article.dart';
 import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/contact.dart';
 import 'package:eloquencia/home.dart';
-import 'package:eloquencia/join.dart';
+import 'package:eloquencia/services.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/partners.dart';
 import 'package:eloquencia/discount.dart';
@@ -17,7 +17,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show SystemChrome, SystemUiMode, rootBundle;
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -195,9 +195,9 @@ drawerBehavior(context, pageID, buttonID) {  // Fonction pour gérer le comporte
     Navigator.pop(context);  // Le menu se ferme
   }
   else {  // Sinon je vais sur la page correspondante
-    if (buttonID == 'Rejoindre') {
+    if (buttonID == 'Services') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesPage()));
     }
     else if (buttonID == 'Blog') {
       Navigator.pop(context);  // Ferme le menu de navigation
@@ -232,11 +232,11 @@ endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le 
       padding: EdgeInsets.zero,
       children: [
         drawerHeaderEloquencia(context, pageID),  // En-tête du menu de navigation
-        ListTile(  // Bouton Rejoindre
-          title: Text('Rejoindre',
+        ListTile(  // Bouton Services
+          title: Text('Services',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Rejoindre');
+            drawerBehavior(context, pageID, 'Services');
           },
         ),
         ListTile(  // Bouton Blog
@@ -303,10 +303,10 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
 
 Future apiLogin(context, email, password) async {
   var emailErr = '';
-  if (password.length == 0) {
-  } else {
-    password = BCrypt.hashpw(password, BCrypt.gensalt());
-  }
+  // if (password.length == 0) {  TODO crypter ou pas ?
+  // } else {
+  //   password = BCrypt.hashpw(password, BCrypt.gensalt());
+  // }
   try {
     final apiLogin = await http.post(
       Uri.parse('https://dev.eloquencia.org/api/login'),
@@ -519,8 +519,8 @@ Future<void> showBlogInfo(context, int blogNB) async {  // Fonction pour affiche
   final BlogInfo blogInfo;
 
   try {
-    print((await getBlog(context))[blogNB]);
-    blogInfo = BlogInfo.fromJson((await getBlog(context))[blogNB]);
+    print((await getBlogPage(context, 0))[blogNB]);
+    blogInfo = BlogInfo.fromJson((await getBlogPage(context, 0))[blogNB]);
   } on BlogRetrievalException catch (e) {
     print(e);
     return;
@@ -553,15 +553,16 @@ Future<void> showBlogInfo(context, int blogNB) async {  // Fonction pour affiche
   print('summary: ${blogInfo.summary}');
 }
 
-Future<List<dynamic>> getBlog(context) async {
+Future<List<dynamic>> getBlogHome(context) async {
   try {
     var apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
-      Uri.parse('https://dev.eloquencia.org/api/blog?info')
+      Uri.parse('https://dev.eloquencia.org/api/blog?featured')
     );
 
     var info = json.decode(apiBlog.body);
     print(apiBlog.body);
     print(info);
+    
     // If the request didn't succeed, throw an exception
     if (info['response_code'] == 200) {
       print('Connexion réussie');
@@ -588,10 +589,7 @@ Future<List<dynamic>> getBlog(context) async {
       throw Exception('Aucune information reçue');
     }
     
-    apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
-      Uri.parse('https://dev.eloquencia.org/api/blog?page=page')
-    );
-    final List<dynamic> blogList = json.decode(apiBlog.body);
+    final List<dynamic> blogList = info['articles'];
     
     if (blogList.isEmpty) {
       throw Exception('Aucun blog à afficher');
@@ -599,6 +597,73 @@ Future<List<dynamic>> getBlog(context) async {
 
     print('Article List: $blogList');
     return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+    
+  } catch (e) {
+    print('Erreur lors de la récupération des blogs: $e');
+    throw BlogRetrievalException(statusCode: e is http.Response ? e.statusCode : null);
+  }
+}
+
+Future<int> getNbPages() async {
+  try {
+    var apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
+      Uri.parse('https://dev.eloquencia.org/api/blog?info')
+    );
+    var info = json.decode(apiBlog.body);
+    print(apiBlog.body);
+    print(info);
+    
+    // If the request didn't succeed, throw an exception
+    if (info['response_code'] == 200) {
+      print('Connexion réussie');
+    }
+    if (info['response_code'] == 201) {
+      throw Exception('Les données ont été créées avec succès');
+    }
+    if (info['response_code'] == 403) {
+      throw Exception('Nécessite une authentification JWT');
+    }
+    if (info['response_code'] == 404) {
+      throw Exception('Rien n\'a été trouvé');
+    }
+    if (info['response_code'] == 405) {
+      throw Exception('Méthode incorrecte');
+    }
+    if (info['response_code'] == 500) {
+      throw Exception('Erreur interne du serveur');
+    }
+    if (info['response_code'] == 503) {
+      throw Exception('Serveur en maintenance');
+    }
+    if (apiBlog.body.isEmpty) {
+      throw Exception('Aucune information reçue');
+    }
+  return info['page'];
+  } catch (e) {
+    print('Erreur lors de la récupération des blogs: $e');
+    throw BlogRetrievalException(statusCode: e is http.Response ? e.statusCode : null);
+  }
+}
+
+Future<List<dynamic>> getBlogPage(context, nbPage) async {
+  try {
+    if (nbPage > 0) {
+        var apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
+        Uri.parse('https://dev.eloquencia.org/api/blog?page=$nbPage')
+      );
+      
+      final List<dynamic> blogList = json.decode(apiBlog.body);
+      
+      if (blogList.isEmpty) {
+        throw Exception('Aucun blog à afficher');
+      }
+
+      print('Article List: $blogList');
+      return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+    } else {
+      throw Exception('Aucun blog à afficher');
+    }
+    
   } catch (e) {
     print('Erreur lors de la récupération des blogs: $e');
     throw BlogRetrievalException(statusCode: e is http.Response ? e.statusCode : null);
@@ -611,16 +676,16 @@ class BlogRetrievalException implements Exception {
   BlogRetrievalException({this.statusCode});
 }
 
-Future<List<Widget>> showBlog(context, int showNb) async {
+Future<List<Widget>> showBlogHome(context) async {
   Image? blogPic;  //TODO récupérer correctement les images des blogs
-  List<dynamic> blogList = await getBlog(context);
+  List<dynamic> blogList = await getBlogHome(context);
   List<Widget> blogWidgets = [];
   Map<String, dynamic> blogInfo;
 
   if (blogList.isEmpty) {
     return [Text('Aucun blog à afficher')];
-  } else if (showNb < blogList.length){
-    for (var i = 0; i < showNb; i++) {
+  } else {
+    for (var i = 0; i < blogList.length; i++) {
       if (blogList[i] is Map<String, dynamic>) {
         blogInfo = blogList[i];
         if (blogInfo['pic'] != null) {
@@ -639,19 +704,32 @@ Future<List<Widget>> showBlog(context, int showNb) async {
       }
     }
     return blogWidgets;
+  }
+}
 
+Future<List<Widget>> showBlogPage(context, nbPage) async {
+  Image? blogPic;  //TODO récupérer correctement les images des blogs
+  List<dynamic> blogList = await getBlogPage(context, nbPage);
+  List<Widget> blogWidgets = [];
+  Map<String, dynamic> blogInfo;
+
+  if (blogList.isEmpty) {
+    return [Text('Aucun blog à afficher')];
   } else {
     for (var i = 0; i < blogList.length; i++) {
       if (blogList[i] is Map<String, dynamic>) {
         blogInfo = blogList[i];
-        // if (blogInfo['pic'] != null) {
-        //   blogPic = Image.asset(blogInfo['pic']);
-        // } else {
-        //   blogPic = null;
-        // }
+        if (blogInfo['pic'] != null) {
+          print(blogPic);
+          blogPic = Image.asset(blogInfo['pic']);
+        } else {
+          blogPic = null;
+          print(null);
+        }
 
         print('Blog $i Info: $blogInfo');
         blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
+        print(blogWidgets);
       } else {
         return blogList as List<Widget>;
       }
@@ -660,8 +738,8 @@ Future<List<Widget>> showBlog(context, int showNb) async {
   }
 }
 
-Future<Widget> showArticle(context, int articleId) async {
-  List<dynamic> blogList = await getBlog(context);
+Future<Widget> showArticle(context, int articleId, nbPage) async {
+  List<dynamic> blogList = await getBlogPage(context, nbPage);
   Widget articleWidgets;
   Map<String, dynamic> blogInfo;
 
