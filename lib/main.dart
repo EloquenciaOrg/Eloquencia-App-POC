@@ -457,7 +457,8 @@ Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogP
                 ),
                 child: Column(
                   children: [
-                    //blogPic!, TODO arranger le bug
+                    if (blogPic != null) 
+                      blogPic, //  TODO arranger le bug
                     SizedBox(height: mediumHeight(context)),
                     SizedBox(
                       width: objectWidth(context) - getWidth(context, 50),
@@ -533,7 +534,7 @@ Future<void> showBlogInfo(context, int blogNB) async {  // Fonction pour affiche
 
   final pic = blogInfo.pic;
   if (pic != null) {
-    print('Picture: ${Image.asset(pic)}');
+    print('Picture: ${Image.network(pic)}');
   } else {
     print('No picture');
   }
@@ -645,6 +646,47 @@ Future<int> getNbPages() async {
   }
 }
 
+Future<int> getNbArticles() async {
+  try {
+    var apiBlog = await http.get(  // Récupérer la liste des blogs avec GET
+      Uri.parse('https://dev.eloquencia.org/api/blog?info')
+    );
+    var info = json.decode(apiBlog.body);
+    print(apiBlog.body);
+    print(info);
+    
+    // If the request didn't succeed, throw an exception
+    if (info['response_code'] == 200) {
+      print('Connexion réussie');
+    }
+    if (info['response_code'] == 201) {
+      throw Exception('Les données ont été créées avec succès');
+    }
+    if (info['response_code'] == 403) {
+      throw Exception('Nécessite une authentification JWT');
+    }
+    if (info['response_code'] == 404) {
+      throw Exception('Rien n\'a été trouvé');
+    }
+    if (info['response_code'] == 405) {
+      throw Exception('Méthode incorrecte');
+    }
+    if (info['response_code'] == 500) {
+      throw Exception('Erreur interne du serveur');
+    }
+    if (info['response_code'] == 503) {
+      throw Exception('Serveur en maintenance');
+    }
+    if (apiBlog.body.isEmpty) {
+      throw Exception('Aucune information reçue');
+    }
+  return info['count'];
+  } catch (e) {
+    print('Erreur lors de la récupération des blogs: $e');
+    throw BlogRetrievalException(statusCode: e is http.Response ? e.statusCode : null);
+  }
+}
+
 Future<List<dynamic>> getBlogPage(context, nbPage) async {
   try {
     if (nbPage > 0) {
@@ -661,7 +703,20 @@ Future<List<dynamic>> getBlogPage(context, nbPage) async {
       print('Article List: $blogList');
       return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
     } else {
-      throw Exception('Aucun blog à afficher');
+      var nbArticles = await getNbArticles();
+      var apiBlog = await http.get(
+        Uri.parse('https://dev.eloquencia.org/api/blog?last=$nbArticles')
+      );
+      print(apiBlog.body);
+      var infos = json.decode(apiBlog.body);
+      final List<dynamic> blogList = infos['articles'];
+      
+      if (blogList.isEmpty) {
+        throw Exception('Aucun blog à afficher');
+      }
+
+      print('Article List: $blogList');
+      return blogList;
     }
     
   } catch (e) {
@@ -689,15 +744,15 @@ Future<List<Widget>> showBlogHome(context) async {
       if (blogList[i] is Map<String, dynamic>) {
         blogInfo = blogList[i];
         if (blogInfo['pic'] != null) {
+          blogPic = Image.network(blogInfo['pic']);
           print(blogPic);
-          blogPic = Image.asset(blogInfo['pic']);
         } else {
           blogPic = null;
           print(null);
         }
 
         print('Blog $i Info: $blogInfo');
-        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], blogPic));
         print(blogWidgets);
       } else {
         return blogList as List<Widget>;
@@ -720,15 +775,15 @@ Future<List<Widget>> showBlogPage(context, nbPage) async {
       if (blogList[i] is Map<String, dynamic>) {
         blogInfo = blogList[i];
         if (blogInfo['pic'] != null) {
+          blogPic = Image.network(blogInfo['pic']);
           print(blogPic);
-          blogPic = Image.asset(blogInfo['pic']);
         } else {
           blogPic = null;
           print(null);
         }
 
         print('Blog $i Info: $blogInfo');
-        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary']));
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], blogPic));
         print(blogWidgets);
       } else {
         return blogList as List<Widget>;
@@ -749,9 +804,11 @@ Future<Widget> showArticle(context, int articleId, nbPage) async {
     for (var i = 0; i < blogList.length; i++) {
       if (blogList[i]['id'] == articleId) {
         blogInfo = blogList[i];
+        print(blogInfo);
         articleWidgets = Column(
           children: [
-            // Image.asset(blogInfo['pic']),
+            Image.network(blogInfo['pic']),
+            SizedBox(height: mediumHeight(context)),
             Text(blogInfo['title'],
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
@@ -767,13 +824,14 @@ Future<Widget> showArticle(context, int articleId, nbPage) async {
               extensions: [
                 IframeHtmlExtension()
               ],
-              style: {'body': Style(
-                fontSize: FontSize(Theme.of(context).textTheme.bodyMedium!.fontSize!),
-                textAlign: TextAlign.justify,
-              ),
-              'img': Style(
-                width: Width(objectWidth(context))
-              )
+              style: {
+                'body': Style(
+                  fontSize: FontSize(Theme.of(context).textTheme.bodyMedium!.fontSize!),
+                  textAlign: TextAlign.justify,
+                ),
+                'img': Style(
+                  width: Width(objectWidth(context))
+                )
               },
             ),
             SizedBox(height: mediumHeight(context)),
@@ -783,30 +841,7 @@ Future<Widget> showArticle(context, int articleId, nbPage) async {
         print(articleWidgets);
         return articleWidgets;
       }
-      // if (blogInfo['pic'] != null) {
-      //   print(blogPic);
-      //   blogPic = Image.asset(blogInfo['pic']);
-      // } else {
-      //   blogPic = null;
-      //   print(null);
-      // }
-
     }
-  // } else {
-  //   for (var i = 0; i < blogList.length; i++) {
-  //     blogInfo = blogList[i];
-  //     // if (blogInfo['pic'] != null) {
-  //     //   blogPic = Image.asset(blogInfo['pic']);
-  //     // } else {
-  //     //   blogPic = null;
-  //     // }
-
-  //     blogTitle = blogInfo['title'];
-  //     blogSummary = blogInfo['summary'];
-  //     print('Blog $i Info: $blogInfo');
-  //     blogWidgets.add(blogArticleSummary(context, blogTitle, blogSummary));
-  //   }
-  //   return blogWidgets;
   }
   return Scaffold(
     appBar: appBarEloquencia(context, 'Erreur', 0),

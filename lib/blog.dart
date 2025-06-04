@@ -100,7 +100,15 @@ class _BlogPageState extends State<BlogPage> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                             ),
-                            
+                            padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(horizontal: getWidth(context, 1)),
+                              ),
+                            minimumSize: WidgetStatePropertyAll<Size>(
+                              Size(30, 40),
+                            ),
+                            maximumSize: WidgetStatePropertyAll<Size>(
+                              Size(30, 40),
+                            ),
                           ),
                           onPressed: () {
                             _initBlogList(i);
