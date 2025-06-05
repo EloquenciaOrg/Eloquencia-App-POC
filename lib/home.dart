@@ -13,7 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class HomePage extends StatefulWidget {  // La page d'accueil
-  const HomePage({super.key});
+  final Map<String, dynamic> userInfo;
+  const HomePage({super.key, required this.userInfo});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initBlogList() async {
     try {
-      blogList = await showBlogHome(context);
+      blogList = await showBlogHome(context, widget.userInfo);
       setState(() {
         blogList = blogList;
       });
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),  // Menu de navigation à droite
       body: RefreshIndicator(
         color: yellow,
         onRefresh: () async {
@@ -123,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const JoinPage()),
+                                MaterialPageRoute(builder: (context) => JoinPage(userInfo: widget.userInfo)),
                               );
                             },
                             child:  Text('Adhérer',
@@ -131,35 +132,66 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(width: 10),  // Espace horizontal entre les deux boutons
-                          ElevatedButton(  // Bouton de connexion
-                            style: ButtonStyle(
-                              backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
-                              shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                          if (widget.userInfo.isEmpty)
+                            ElevatedButton(  // Bouton de connexion
+                              style: ButtonStyle(
+                                backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                  EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
+                                ),
+                                minimumSize: WidgetStatePropertyAll<Size>(
+                                  Size(buttonWidth(context), 40),
+                                ),
+                                maximumSize: WidgetStatePropertyAll<Size>(
+                                  Size(buttonWidth(context), 40),
                                 ),
                               ),
-                              padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
-                              ),
-                              minimumSize: WidgetStatePropertyAll<Size>(
-                                Size(buttonWidth(context), 40),
-                              ),
-                              maximumSize: WidgetStatePropertyAll<Size>(
-                                Size(buttonWidth(context), 40),
+                              
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LoginPage(userInfo: widget.userInfo)),
+                                );
+                              },
+                              child: Text('Se Connecter',
+                                style: Theme.of(context).textTheme.bodyMedium
                               ),
                             ),
-                            
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginPage()),
-                              );
-                            },
-                            child: Text('Se Connecter',
-                              style: Theme.of(context).textTheme.bodyMedium
+                          if (widget.userInfo.isEmpty == false)
+                            ElevatedButton(  // Bouton de connexion
+                              style: ButtonStyle(
+                                backgroundColor: const WidgetStatePropertyAll<Color>(yellow),
+                                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                                  EdgeInsets.symmetric(horizontal: getWidth(context, 11)),
+                                ),
+                                minimumSize: WidgetStatePropertyAll<Size>(
+                                  Size(buttonWidth(context), 40),
+                                ),
+                                maximumSize: WidgetStatePropertyAll<Size>(
+                                  Size(buttonWidth(context), 40),
+                                ),
+                              ),
+                              
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LoginPage(userInfo: widget.userInfo)),
+                                );
+                              },
+                              child: Text('Leçons',
+                                style: Theme.of(context).textTheme.bodyMedium
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       SizedBox(height: largeHeight(context)),  // Espace entre le bouton de connexion et le texte de réduction
@@ -188,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const DiscountPage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => DiscountPage(userInfo: widget.userInfo)));
                         },
                         child: Text('Demander une réduction',
                           style: Theme.of(context).textTheme.bodyMedium
@@ -245,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const BlogPage()));
+                            MaterialPageRoute(builder: (context) => BlogPage(userInfo: widget.userInfo)));
                         },
                         child: Text('Voir tous les articles',
                           style: Theme.of(context).textTheme.bodyMedium

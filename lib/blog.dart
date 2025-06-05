@@ -2,7 +2,8 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class BlogPage extends StatefulWidget {
-  const BlogPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const BlogPage({super.key, required this.userInfo});
 
   @override
   State<BlogPage> createState() => _BlogPageState();
@@ -21,7 +22,7 @@ class _BlogPageState extends State<BlogPage> {
   }
 
   Future<void> _initBlogList(nbPage) async {
-    blogList = await showBlogPage(context, nbPage);
+    blogList = await showBlogPage(context, nbPage, widget.userInfo);
     setState(() {
       blogList = blogList;
     });
@@ -39,7 +40,7 @@ class _BlogPageState extends State<BlogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: ListView(
         children: [
           Center(

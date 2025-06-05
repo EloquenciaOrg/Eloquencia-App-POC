@@ -9,6 +9,7 @@ import 'package:eloquencia/article.dart';
 import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/contact.dart';
 import 'package:eloquencia/home.dart';
+import 'package:eloquencia/logout.dart';
 import 'package:eloquencia/services.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/partners.dart';
@@ -27,7 +28,7 @@ import 'package:mime/mime.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(MyApp(userInfo: {}));
 }
 
 // Variables globales
@@ -130,13 +131,18 @@ appBarEloquencia(BuildContext context, pageID, [double space = 16.0]) {  // Fonc
   );
 }
 
-drawerHeaderEloquencia(BuildContext context, pageID) {  // Fonction pour créer l'en-tête du menu de navigation
+drawerHeaderEloquencia(BuildContext context, pageID, userInfo) {  // Fonction pour créer l'en-tête du menu de navigation
   return DrawerHeader(  // En-tête du menu de navigation
     decoration: const BoxDecoration(color: yellow),  // Couleur du bouton
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,  // Alignement du logo le plus à gauche possible
       children: [
-        logoEloquencia(context, pageID, 30)  // Logo de l'application à la taille 30
+        logoEloquencia(context, pageID, 30),  // Logo de l'application à la taille 30
+        if (userInfo.isEmpty == false)
+          SizedBox(height: smallHeight(context)),
+          Text('Bienvenue ${userInfo['first_name']} ${userInfo['name']}',
+            style: Theme.of(context).textTheme.headlineMedium
+          )
       ],
     ),
   );
@@ -168,9 +174,9 @@ logoEloquencia(BuildContext context, pageID, double fontSize, [String suffix = '
     onTap: () {  // Au touché du logo
       if (pageID == 'Accueil') {  // Si je suis sur la page d'accueil rien ne se passe
       }
-      else {
-        while (Navigator.canPop(context)) {  // Si je ne suis pas sur la page d'accueil, je retourne à la page d'accueil
-          Navigator.pop(context);  // Ferme le menu de navigation
+      else {  // Si je ne suis pas sur la page d'accueil...
+        while (Navigator.canPop(context)) {  // Tant que je peux revenir en arrière...
+          Navigator.pop(context);  // Je reviens en arrière
         }
       }
     },
@@ -186,7 +192,7 @@ copyrightEloquencia(BuildContext context) {  // Fonction pour créer le texte de
   );
 }
 
-drawerBehavior(context, pageID, buttonID) {  // Fonction pour gérer le comportement du menu de navigation
+drawerBehavior(context, pageID, buttonID, userInfo) {  // Fonction pour gérer le comportement du menu de navigation
   /*Est-ce que le nom du bouton est le même que l'ID de la page sur laquelle je suis
   si oui, Navigator.pop(context)
   si non, Navigator.push(context, MaterialPageRoute(builder: (context) => const lapage)*/
@@ -197,90 +203,103 @@ drawerBehavior(context, pageID, buttonID) {  // Fonction pour gérer le comporte
   else {  // Sinon je vais sur la page correspondante
     if (buttonID == 'Services') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ServicesPage(userInfo: userInfo)));
     }
     else if (buttonID == 'Blog') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const BlogPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => BlogPage(userInfo: userInfo)));
     }
     else if (buttonID == 'Partenaires') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const PartnersPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PartnersPage(userInfo: userInfo)));
     }
     else if (buttonID == 'Réductions') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const DiscountPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => DiscountPage(userInfo: userInfo)));
     }
     else if (buttonID == 'Contact') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ContactPage(userInfo: userInfo)));
     }
     else if (buttonID == 'À propos') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage(userInfo: userInfo)));
     }
     else if (buttonID == 'Connexion') {
       Navigator.pop(context);  // Ferme le menu de navigation
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(userInfo: userInfo)));
+    }
+    else if (buttonID == 'Déconnexion') {
+      Navigator.pop(context);  // Ferme le menu de navigation
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LogoutPage(userInfo: userInfo)));
     }
   }
 }
 
-endDrawerEloquencia(BuildContext context, pageID) {  // Fonction pour créer le menu de navigation à droite
+endDrawerEloquencia(BuildContext context, pageID, userInfo) {  // Fonction pour créer le menu de navigation à droite
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
       children: [
-        drawerHeaderEloquencia(context, pageID),  // En-tête du menu de navigation
+        drawerHeaderEloquencia(context, pageID, userInfo),  // En-tête du menu de navigation
         ListTile(  // Bouton Services
           title: Text('Services',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Services');
+            drawerBehavior(context, pageID, 'Services', userInfo);
           },
         ),
         ListTile(  // Bouton Blog
           title: Text('Blog',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Blog');
+            drawerBehavior(context, pageID, 'Blog', userInfo);
           },
         ),
         ListTile(  // Bouton Partenaires
           title: Text('Partenaires',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Partenaires');
+            drawerBehavior(context, pageID, 'Partenaires', userInfo);
           },
         ),
         ListTile(  // Bouton Réductions
           title: Text('Réductions',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Réductions');
+            drawerBehavior(context, pageID, 'Réductions', userInfo);
           },
         ),
         ListTile(  // Bouton Contact
           title: Text('Contact',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'Contact');
+            drawerBehavior(context, pageID, 'Contact', userInfo);
           },
         ),
         ListTile(  // Bouton À propos
           title: Text('À propos',
             style: Theme.of(context).textTheme.bodyMedium),
           onTap: () {
-            drawerBehavior(context, pageID, 'À propos');
+            drawerBehavior(context, pageID, 'À propos', userInfo);
           },
         ),
-        ListTile(  // Bouton Connexion
-          title: Text('Connexion',  // TODO changer position du bouton juste en dessous du logo et l'afficher seulement si pas connecté
-            style: Theme.of(context).textTheme.bodyMedium), 
-          onTap: () {
-            drawerBehavior(context, pageID, 'Connexion');
-          },
-        ),
+        if (userInfo.isEmpty)
+          ListTile(  // Bouton Connexion
+            title: Text('Connexion',
+              style: Theme.of(context).textTheme.bodyMedium), 
+            onTap: () {
+              drawerBehavior(context, pageID, 'Connexion', userInfo);
+            },
+          ),
+        if (userInfo.isEmpty == false)
+          ListTile(  // Bouton Déconnexion
+            title: Text('Déconnexion',
+              style: Theme.of(context).textTheme.bodyMedium), 
+            onTap: () {
+              drawerBehavior(context, pageID, 'Déconnexion', userInfo);
+            },
+          ),
         copyrightEloquencia(context)  // Copyright
       ],
     ),
@@ -303,7 +322,7 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
 
 Future apiLogin(context, email, password) async {
   var emailErr = '';
-  // if (password.length == 0) {  TODO crypter ou pas ?
+  // if (password.length == 0) {  //TODO ajouter cryptage
   // } else {
   //   password = BCrypt.hashpw(password, BCrypt.gensalt());
   // }
@@ -342,15 +361,16 @@ Future apiLogin(context, email, password) async {
       throw Exception('Aucune information reçue');
     }
     print(apiLogin.body);
-    if (login['status'] == true) {
-        return Text(login['message'],
-          style: TextStyle(
-            color: Colors.green,
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
-          ),
-          textAlign: TextAlign.center,
-        );
-      }
+    if (login['status'] == 'success') {
+      var userInfo = login['user_info'];
+      await storage.write(key: 'token', value: login['token']);
+      print(await storage.read(key: 'token'));
+      var firstName = userInfo['first_name'];
+      var lastName = userInfo['name'];
+      print(firstName);
+      print(lastName);
+      return userInfo;
+    }
     if (login['status'] == 'error') {
       if (login['errors'] == null) {
         return Text(login['message'],
@@ -441,7 +461,7 @@ class BlogInfo {  // Classe pour stocker les informations du blog
   }
 }
 
-Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogPic]) {  // Fonction pour créer un article de blog
+Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, userInfo, [Image? blogPic]) {  // Fonction pour créer un article de blog
   return Column(
     children: [
       ClipRRect(
@@ -458,7 +478,7 @@ Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogP
                 child: Column(
                   children: [
                     if (blogPic != null) 
-                      blogPic, //  TODO arranger le bug
+                      blogPic,
                     SizedBox(height: mediumHeight(context)),
                     SizedBox(
                       width: objectWidth(context) - getWidth(context, 50),
@@ -506,7 +526,7 @@ Widget blogArticleSummary(context, blogId, blogTitle, blogSummary, [Image? blogP
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ArticlePage(articleId: blogId))  // Ouvrir l'article de blog au touché
+              MaterialPageRoute(builder: (context) => ArticlePage(articleId: blogId, userInfo: userInfo))  // Ouvrir l'article de blog au touché
             );
           },
         ),
@@ -731,8 +751,8 @@ class BlogRetrievalException implements Exception {
   BlogRetrievalException({this.statusCode});
 }
 
-Future<List<Widget>> showBlogHome(context) async {
-  Image? blogPic;  //TODO récupérer correctement les images des blogs
+Future<List<Widget>> showBlogHome(context, userInfo) async {
+  Image? blogPic;
   List<dynamic> blogList = await getBlogHome(context);
   List<Widget> blogWidgets = [];
   Map<String, dynamic> blogInfo;
@@ -752,7 +772,7 @@ Future<List<Widget>> showBlogHome(context) async {
         }
 
         print('Blog $i Info: $blogInfo');
-        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], blogPic));
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], userInfo, blogPic));
         print(blogWidgets);
       } else {
         return blogList as List<Widget>;
@@ -762,8 +782,8 @@ Future<List<Widget>> showBlogHome(context) async {
   }
 }
 
-Future<List<Widget>> showBlogPage(context, nbPage) async {
-  Image? blogPic;  //TODO récupérer correctement les images des blogs
+Future<List<Widget>> showBlogPage(context, nbPage, userInfo) async {
+  Image? blogPic;
   List<dynamic> blogList = await getBlogPage(context, nbPage);
   List<Widget> blogWidgets = [];
   Map<String, dynamic> blogInfo;
@@ -783,7 +803,7 @@ Future<List<Widget>> showBlogPage(context, nbPage) async {
         }
 
         print('Blog $i Info: $blogInfo');
-        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], blogPic));
+        blogWidgets.add(blogArticleSummary(context, blogInfo['id'], blogInfo['title'], blogInfo['summary'], userInfo, blogPic));
         print(blogWidgets);
       } else {
         return blogList as List<Widget>;
@@ -793,7 +813,7 @@ Future<List<Widget>> showBlogPage(context, nbPage) async {
   }
 }
 
-Future<Widget> showArticle(context, int articleId, nbPage) async {
+Future<Widget> showArticle(context, int articleId, nbPage, userInfo) async {
   List<dynamic> blogList = await getBlogPage(context, nbPage);
   Widget articleWidgets;
   Map<String, dynamic> blogInfo;
@@ -845,7 +865,7 @@ Future<Widget> showArticle(context, int articleId, nbPage) async {
   }
   return Scaffold(
     appBar: appBarEloquencia(context, 'Erreur', 0),
-    endDrawer: endDrawerEloquencia(context, articleId),
+    endDrawer: endDrawerEloquencia(context, articleId, userInfo),
     body: ListView(
       children: [
         Center(
@@ -904,7 +924,7 @@ Future apiContact(context, name, email, message) async {
       } else {
         try {
           final apiContact = await http.post(
-            Uri.parse('https://dev.eloquencia.org/api/contact'), // TODO résoudre erreur
+            Uri.parse('https://dev.eloquencia.org/api/contact'),
             body: {
               'name': name,
               'email': email,
@@ -1028,7 +1048,7 @@ Future apiDiscount(context, name, email, File? file, cgu) async {
         );
       } else {
         try {
-          var uri = Uri.parse('https://dev.eloquencia.org/api/discount'); // TODO résoudre erreur
+          var uri = Uri.parse('https://dev.eloquencia.org/api/discount');
           var request = http.MultipartRequest('POST', uri);
           request.fields['name'] = name;
           request.fields['email'] = email;
@@ -1134,7 +1154,8 @@ Future apiDiscount(context, name, email, File? file, cgu) async {
 }
 
 class MyApp extends StatefulWidget {  // L'application
-  const MyApp({super.key});
+  final Map<String, dynamic> userInfo;
+  const MyApp({super.key, required this.userInfo});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -1152,7 +1173,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HomePage(),
+      home: HomePage(userInfo: widget.userInfo),
       theme: ThemeData(
         textSelectionTheme: const TextSelectionThemeData(
           cursorColor: yellow,
@@ -1179,6 +1200,9 @@ class _MyAppState extends State<MyApp> {
           headlineSmall: TextStyle(
             fontStyle: FontStyle.italic,
             fontSize: 20
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 22
           ),
           bodyMedium: TextStyle(
             fontSize: 18

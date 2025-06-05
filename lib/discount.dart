@@ -1,9 +1,12 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class DiscountPage extends StatefulWidget {
-  const DiscountPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const DiscountPage({super.key, required this.userInfo});
 
   @override
   State<DiscountPage> createState() => _DiscountPageState();
@@ -36,7 +39,7 @@ class _DiscountPageState extends State<DiscountPage> {
     }
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: Center(
         child: ListView(
           children: [
@@ -263,7 +266,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                                 if (!mounted) return;
                                                 setState(() {
                                                   errorMessage = errorMessage;
-                                                });  // TODO Case à cocher pour accepter les conditions générales
+                                                });
                                               },
                                               child: Text('Envoyer',
                                                 style: Theme.of(context).textTheme.bodyMedium

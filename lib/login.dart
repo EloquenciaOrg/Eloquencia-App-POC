@@ -1,20 +1,24 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:eloquencia/forgotpasswd.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const LoginPage({super.key, required this.userInfo});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool isChecked = false;  // Statut de la case à cocher
   final pageID = "Connexion";
+  bool isChecked = false;  // Statut de la case à cocher
   final email = TextEditingController();
   final password = TextEditingController();
-  Widget? errorMessage;
+  // ignore: prefer_typing_uninitialized_variables
+  var loginResult;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: ListView(
         children: [
           Column(
@@ -159,9 +163,9 @@ class _LoginPageState extends State<LoginPage> {
                                               ],
                                             ),
                                             SizedBox(height: smallHeight(context)),
-                                            if (errorMessage != null) 
-                                              errorMessage!,
-                                            SizedBox(height: smallHeight(context)),  // TODO Case à cocher pour accepter les conditions générales
+                                            if (loginResult != null && loginResult is Widget) 
+                                              loginResult!,
+                                            SizedBox(height: smallHeight(context))
                                           ],
                                         ),
                                       ),
@@ -187,10 +191,17 @@ class _LoginPageState extends State<LoginPage> {
                                                 ),
                                                 
                                                 onPressed: () async {
-                                                  errorMessage = await apiLogin(context, email.text, password.text);
-                                                setState(() {
-                                                  errorMessage = errorMessage;
-                                                });  // TODO : faire la connexion
+                                                  loginResult = await apiLogin(context, email.text, password.text);
+                                                  if (loginResult is Widget) {
+                                                    setState(() {
+                                                      loginResult = loginResult;
+                                                    });  // TODO Connexion renvoie à une page comme le lms
+                                                  } else {
+                                                    runApp(MyApp(userInfo: loginResult));
+                                                    while (Navigator.canPop(context)) {  // Je retourne à la page d'accueil
+                                                      Navigator.pop(context);
+                                                    }
+                                                  }
                                                 },
                                                 child: Text('Connexion',
                                                   style: Theme.of(context).textTheme.bodyMedium
@@ -217,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 onPressed: () {
                                                   Navigator.push(
                                                     context,
-                                                    MaterialPageRoute(builder: (context) => const ForgotPasswdPage()),
+                                                    MaterialPageRoute(builder: (context) => ForgotPasswdPage(userInfo: widget.userInfo)),
                                                   );
                                                 },
                                                 child: Text('Mot de passe oublié',

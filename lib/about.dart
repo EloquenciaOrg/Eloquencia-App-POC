@@ -2,14 +2,15 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class AboutPage extends StatelessWidget {
-  const AboutPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const AboutPage({super.key, required this.userInfo});
   final pageID = 'À propos';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo),
       body: Center(
         child: ListView(
           children: [

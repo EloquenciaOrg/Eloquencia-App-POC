@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class JoinPage extends StatefulWidget {  // Page de HelloAsso
-  const JoinPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const JoinPage({super.key, required this.userInfo});
 
   @override
   State<JoinPage> createState() => _JoinPageState();
@@ -59,7 +60,7 @@ class _JoinPageState extends State<JoinPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: Stack(
         children: [
           WebViewWidget(

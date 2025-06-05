@@ -3,14 +3,15 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class ServicesPage extends StatelessWidget {
-  const ServicesPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const ServicesPage({super.key, required this.userInfo});
   final pageID = 'Services';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo),
       body: ListView(
         children: [
           Center(
@@ -147,7 +148,7 @@ class ServicesPage extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => DiscountPage())  
+                              MaterialPageRoute(builder: (context) => DiscountPage(userInfo: userInfo))  
                             );
                           },
                           child: Text('Faire une demande de réduction',

@@ -2,14 +2,15 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswdPage extends StatelessWidget {  // La page d'accueil
-  const ForgotPasswdPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const ForgotPasswdPage({super.key, required this.userInfo});
   final pageID = 'Réinitialisation';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),  // Menu de navigation à droite
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo),  // Menu de navigation à droite
       body:  ListView(
         children: [
           Column(

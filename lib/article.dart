@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class ArticlePage extends StatefulWidget {
   final int articleId; 
-  const ArticlePage({super.key, required this.articleId});
+  final Map<String, dynamic> userInfo;
+  const ArticlePage({super.key, required this.articleId, required this.userInfo});
 
   @override
   State<ArticlePage> createState() => _ArticlePageState();
@@ -21,7 +22,7 @@ class _ArticlePageState extends State<ArticlePage> {
   }
 
   Future<void> _initBlogArticle() async {
-    blogArticle = await showArticle(context, widget.articleId, 0);
+    blogArticle = await showArticle(context, widget.articleId, 0, widget.userInfo);
     setState(() {
       blogArticle = blogArticle;
     });
@@ -31,7 +32,7 @@ class _ArticlePageState extends State<ArticlePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: ListView(
         children: [
           Center(

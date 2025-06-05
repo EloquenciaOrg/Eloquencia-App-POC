@@ -2,7 +2,8 @@ import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
 class ContactPage extends StatefulWidget {
-  const ContactPage({super.key});
+  final Map<String, dynamic> userInfo;
+  const ContactPage({super.key, required this.userInfo});
 
   @override
   State<ContactPage> createState() => _ContactPageState();
@@ -13,13 +14,13 @@ class _ContactPageState extends State<ContactPage> {
   final name = TextEditingController();
   final email = TextEditingController();
   final message = TextEditingController();
-  Widget? errorMessage;
+  Widget? loginResult;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
       body: Center(
         child: ListView(
           children: [
@@ -143,8 +144,8 @@ class _ContactPageState extends State<ContactPage> {
                                               ),
                                             ),
                                             SizedBox(height: smallHeight(context)),
-                                            if (errorMessage != null) 
-                                              errorMessage!,
+                                            if (loginResult != null) 
+                                              loginResult!,
                                             SizedBox(height: smallHeight(context)),
                                             ElevatedButton(  // Bouton de connexion
                                               style: ButtonStyle(
@@ -166,9 +167,9 @@ class _ContactPageState extends State<ContactPage> {
                                               ),
                                               
                                               onPressed: () async {
-                                                errorMessage = await apiContact(context, name.text, email.text, message.text);
+                                                loginResult = await apiContact(context, name.text, email.text, message.text);
                                                 setState(() {
-                                                  errorMessage = errorMessage;
+                                                  loginResult = loginResult;
                                                 });
                                               },
                                               child: Text('Envoyer',
