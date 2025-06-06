@@ -2,6 +2,7 @@
 
 import 'package:eloquencia/forgotpasswd.dart';
 import 'package:eloquencia/main.dart';
+import 'package:eloquencia/welcome.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -95,10 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                                           children: [
                                             SizedBox(height: largeHeight(context)),
                                             TextField(  // Champ de texte pour la connexion
-                                            controller: email,
+                                              controller: email,
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Adresse e-mail',
@@ -119,6 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               obscureText: true,  // Masquer le mot de passe
                                               cursorColor: black,
                                               decoration: InputDecoration(
@@ -201,6 +204,10 @@ class _LoginPageState extends State<LoginPage> {
                                                     while (Navigator.canPop(context)) {  // Je retourne à la page d'accueil
                                                       Navigator.pop(context);
                                                     }
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => WelcomePage(userInfo: widget.userInfo))
+                                                    );
                                                   }
                                                 },
                                                 child: Text('Connexion',

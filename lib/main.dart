@@ -1,5 +1,5 @@
 //import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, strict_top_level_inference
 
 import 'dart:convert';
 import 'dart:io';
@@ -131,6 +131,21 @@ appBarEloquencia(BuildContext context, pageID, [double space = 16.0]) {  // Fonc
   );
 }
 
+userMessage(context, userInfo) {
+  if (userInfo.isEmpty) {
+    return SizedBox();
+  } else {
+    return Column(
+      children: [
+        SizedBox(height: smallHeight(context)),
+        Text('Bienvenue ${userInfo['first_name']} ${userInfo['name']}',
+          style: Theme.of(context).textTheme.headlineMedium
+        )
+      ]
+    );
+  }
+}
+
 drawerHeaderEloquencia(BuildContext context, pageID, userInfo) {  // Fonction pour créer l'en-tête du menu de navigation
   return DrawerHeader(  // En-tête du menu de navigation
     decoration: const BoxDecoration(color: yellow),  // Couleur du bouton
@@ -138,11 +153,7 @@ drawerHeaderEloquencia(BuildContext context, pageID, userInfo) {  // Fonction po
       mainAxisAlignment: MainAxisAlignment.start,  // Alignement du logo le plus à gauche possible
       children: [
         logoEloquencia(context, pageID, 30),  // Logo de l'application à la taille 30
-        if (userInfo.isEmpty == false)
-          SizedBox(height: smallHeight(context)),
-          Text('Bienvenue ${userInfo['first_name']} ${userInfo['name']}',
-            style: Theme.of(context).textTheme.headlineMedium
-          )
+        userMessage(context, userInfo)
       ],
     ),
   );
@@ -322,7 +333,7 @@ Future<bool> checkConnection() async {  //TODO : custom "connexion perdue" page
 
 Future apiLogin(context, email, password) async {
   var emailErr = '';
-  // if (password.length == 0) {  //TODO ajouter cryptage
+  // if (password.length == 0) {
   // } else {
   //   password = BCrypt.hashpw(password, BCrypt.gensalt());
   // }
@@ -334,8 +345,7 @@ Future apiLogin(context, email, password) async {
         'password': password
       }
     );
-    var login = jsonDecode(apiLogin.body) as Map<String, dynamic>;
-    print(login);
+    
     if (apiLogin.statusCode == 200) {
       print('Connexion réussie');
     }
@@ -354,6 +364,9 @@ Future apiLogin(context, email, password) async {
     if (apiLogin.statusCode == 500) {
       throw Exception('Erreur interne du serveur');
     }
+    if (apiLogin.statusCode == 502) {
+      throw Exception('Bad Gateway');
+    }
     if (apiLogin.statusCode == 503) {
       throw Exception('Serveur en maintenance');
     }
@@ -361,6 +374,8 @@ Future apiLogin(context, email, password) async {
       throw Exception('Aucune information reçue');
     }
     print(apiLogin.body);
+    var login = jsonDecode(apiLogin.body) as Map<String, dynamic>;
+    print(login);
     if (login['status'] == 'success') {
       var userInfo = login['user_info'];
       await storage.write(key: 'token', value: login['token']);

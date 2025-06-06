@@ -98,7 +98,8 @@ class LogoutPage extends StatelessWidget {
                                             ),
                                             
                                             onPressed: () async {
-                                              // TODO supprimer le token
+                                              print(await storage.readAll());
+                                              storage.deleteAll();  // TODO supprimer le token
                                             },
                                             child: Text('Se déconnecter',
                                               style: Theme.of(context).textTheme.bodyMedium

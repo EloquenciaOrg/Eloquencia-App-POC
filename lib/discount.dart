@@ -102,6 +102,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Nom complet',
@@ -122,6 +123,7 @@ class _DiscountPageState extends State<DiscountPage> {
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Adresse e-mail',

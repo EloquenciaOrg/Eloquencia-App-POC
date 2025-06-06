@@ -74,6 +74,7 @@ class ForgotPasswdPage extends StatelessWidget {  // La page d'accueil
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Adresse e-mail',

@@ -83,6 +83,7 @@ class _ContactPageState extends State<ContactPage> {
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Nom',
@@ -103,6 +104,7 @@ class _ContactPageState extends State<ContactPage> {
                                               onTapOutside: (event) {
                                                 FocusScope.of(context).unfocus();
                                               },
+                                              style: Theme.of(context).textTheme.bodySmall,
                                               cursorColor: black,
                                               decoration: InputDecoration(
                                                 labelText: 'Adresse e-mail',
@@ -125,6 +127,7 @@ class _ContactPageState extends State<ContactPage> {
                                                 onTapOutside: (event) {
                                                   FocusScope.of(context).unfocus();
                                                 },
+                                                style: Theme.of(context).textTheme.bodySmall,
                                                 textAlignVertical: TextAlignVertical.top,
                                                 expands: true,
                                                 maxLines: null,

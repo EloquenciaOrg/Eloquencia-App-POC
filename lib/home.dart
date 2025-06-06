@@ -232,9 +232,9 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: largeHeight(context)),  // Espace entre les boutons d'adhésion et de connexion et le carrousel
                 CarouselSlider(  // Carrousel d'images
                   items: [
-                    Image.asset('assets/images/carousel.jpg',
+                    Image.network('https://dev.eloquencia.org/images/carousel1_2.jpg',
                     ),
-                    Image.asset('assets/images/carousel1.jpg',
+                    Image.network('https://dev.eloquencia.org/images/carousel2_2.jpg',
                     )
                   ],
                   options: CarouselOptions(

@@ -5,6 +5,10 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+dependencies {
+    implementation("com.google.android.material:material:1.14.0-alpha01")
+}
+
 android {
     namespace = "com.example.eloquencia"
     compileSdk = flutter.compileSdkVersion

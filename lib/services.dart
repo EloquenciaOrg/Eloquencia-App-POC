@@ -270,7 +270,7 @@ class ServicesPage extends StatelessWidget {
                       color: yellow3
                     )
                   ),
-                  SelectableText('contact@eloquencia.org',
+                  SelectableText('contact@eloquencia.org',  //TODO utiliser mailto pour envoyer sur appli de mail
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   SizedBox(height: smallHeight(context)),
