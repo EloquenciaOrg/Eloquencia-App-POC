@@ -9,8 +9,8 @@ class LogoutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID, userInfo),
+      appBar: appBarEloquencia(context, pageID, yellow, 0),
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo, yellow),
       body: ListView(
         children: [
           Column(

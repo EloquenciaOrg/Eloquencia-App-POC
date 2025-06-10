@@ -123,9 +123,9 @@ buttonHeight(context)  {  // Hauteur des boutons normaux
 
 // Fonctions pour les éléments de l'application
 
-appBarEloquencia(BuildContext context, pageID, [double space = 16.0]) {  // Fonction pour créer la barre de navigation en haut de l'application
+appBarEloquencia(BuildContext context, pageID, color, [double space = 16.0]) {  // Fonction pour créer la barre de navigation en haut de l'application
   return AppBar(
-    backgroundColor: yellow,
+    backgroundColor: color,
     title: logoEloquencia(context, pageID, 22, ' - $pageID'),  // Logo et titre de l'application
     titleSpacing: getWidth(context, space),  // Espace entre le logo et le bord gauche de l'écran
   );
@@ -146,9 +146,9 @@ userMessage(context, userInfo) {
   }
 }
 
-drawerHeaderEloquencia(BuildContext context, pageID, userInfo) {  // Fonction pour créer l'en-tête du menu de navigation
+drawerHeaderEloquencia(BuildContext context, pageID, userInfo, color) {  // Fonction pour créer l'en-tête du menu de navigation
   return DrawerHeader(  // En-tête du menu de navigation
-    decoration: const BoxDecoration(color: yellow),  // Couleur du bouton
+    decoration: BoxDecoration(color: color),  // Couleur du bouton
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,  // Alignement du logo le plus à gauche possible
       children: [
@@ -247,12 +247,12 @@ drawerBehavior(context, pageID, buttonID, userInfo) {  // Fonction pour gérer l
   }
 }
 
-endDrawerEloquencia(BuildContext context, pageID, userInfo) {  // Fonction pour créer le menu de navigation à droite
+endDrawerEloquencia(BuildContext context, pageID, userInfo, color) {  // Fonction pour créer le menu de navigation à droite
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
       children: [
-        drawerHeaderEloquencia(context, pageID, userInfo),  // En-tête du menu de navigation
+        drawerHeaderEloquencia(context, pageID, userInfo, color),  // En-tête du menu de navigation
         ListTile(  // Bouton Services
           title: Text('Services',
             style: Theme.of(context).textTheme.bodyMedium),
@@ -595,44 +595,48 @@ Future<List<dynamic>> getBlogHome(context) async {
       Uri.parse('https://dev.eloquencia.org/api/blog?featured')
     );
 
-    var info = json.decode(apiBlog.body);
-    print(apiBlog.body);
-    print(info);
-    
-    // If the request didn't succeed, throw an exception
-    if (info['response_code'] == 200) {
-      print('Connexion réussie');
-    }
-    if (info['response_code'] == 201) {
-      throw Exception('Les données ont été créées avec succès');
-    }
-    if (info['response_code'] == 403) {
-      throw Exception('Nécessite une authentification JWT');
-    }
-    if (info['response_code'] == 404) {
-      throw Exception('Rien n\'a été trouvé');
-    }
-    if (info['response_code'] == 405) {
-      throw Exception('Méthode incorrecte');
-    }
-    if (info['response_code'] == 500) {
-      throw Exception('Erreur interne du serveur');
-    }
-    if (info['response_code'] == 503) {
-      throw Exception('Serveur en maintenance');
-    }
     if (apiBlog.body.isEmpty) {
-      throw Exception('Aucune information reçue');
-    }
-    
-    final List<dynamic> blogList = info['articles'];
-    
-    if (blogList.isEmpty) {
-      throw Exception('Aucun blog à afficher');
-    }
+      return [Text('Aucune information reçue')];
+    } else {
+      print(apiBlog.body);
+      var info = json.decode(apiBlog.body);
+      print(info);
+      
+      // If the request didn't succeed, throw an exception
+      if (info['response_code'] == 200) {
+        print('Connexion réussie');
+      }
+      if (info['response_code'] == 201) {
+        throw Exception('Les données ont été créées avec succès');
+      }
+      if (info['response_code'] == 403) {
+        throw Exception('Nécessite une authentification JWT');
+      }
+      if (info['response_code'] == 404) {
+        throw Exception('Rien n\'a été trouvé');
+      }
+      if (info['response_code'] == 405) {
+        throw Exception('Méthode incorrecte');
+      }
+      if (info['response_code'] == 500) {
+        throw Exception('Erreur interne du serveur');
+      }
+      if (info['response_code'] == 503) {
+        throw Exception('Serveur en maintenance');
+      }
+      if (apiBlog.body.isEmpty) {
+        throw Exception('Aucune information reçue');
+      }
+      
+      final List<dynamic> blogList = info['articles'];
+      
+      if (blogList.isEmpty) {
+        throw Exception('Aucun blog à afficher');
+      }
 
-    print('Article List: $blogList');
-    return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+      print('Article List: $blogList');
+      return blogList; //BlogInfo.fromJson(blogList[blogNb] as Map<String, dynamic>);
+    }
     
   } catch (e) {
     print('Erreur lors de la récupération des blogs: $e');
@@ -879,8 +883,8 @@ Future<Widget> showArticle(context, int articleId, nbPage, userInfo) async {
     }
   }
   return Scaffold(
-    appBar: appBarEloquencia(context, 'Erreur', 0),
-    endDrawer: endDrawerEloquencia(context, articleId, userInfo),
+    appBar: appBarEloquencia(context, 'Erreur', yellow, 0),
+    endDrawer: endDrawerEloquencia(context, articleId, userInfo, yellow),
     body: ListView(
       children: [
         Center(

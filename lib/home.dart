@@ -9,6 +9,7 @@ import 'package:eloquencia/discount.dart';
 import 'package:eloquencia/join.dart';
 import 'package:eloquencia/login.dart';
 import 'package:eloquencia/main.dart';
+import 'package:eloquencia/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
@@ -74,8 +75,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),  // Menu de navigation à droite
+      appBar: appBarEloquencia(context, pageID, yellow),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, yellow),  // Menu de navigation à droite
       body: RefreshIndicator(
         color: yellow,
         onRefresh: () async {
@@ -185,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => LoginPage(userInfo: widget.userInfo)),
+                                  MaterialPageRoute(builder: (context) => WelcomePage(userInfo: widget.userInfo)),
                                 );
                               },
                               child: Text('Leçons',
@@ -232,10 +233,15 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: largeHeight(context)),  // Espace entre les boutons d'adhésion et de connexion et le carrousel
                 CarouselSlider(  // Carrousel d'images
                   items: [
-                    Image.network('https://dev.eloquencia.org/images/carousel1_2.jpg',
+                    Image.asset('assets/images/carousel.jpg',
                     ),
-                    Image.network('https://dev.eloquencia.org/images/carousel2_2.jpg',
+                    Image.asset('assets/images/carousel1.jpg',
                     )
+                    
+                    // Image.network('https://dev.eloquencia.org/images/carousel1_2.jpg',
+                    // ),
+                    // Image.network('https://dev.eloquencia.org/images/carousel2_2.jpg',
+                    // )
                   ],
                   options: CarouselOptions(
                     autoPlay: true,

@@ -9,8 +9,8 @@ class ForgotPasswdPage extends StatelessWidget {  // La page d'accueil
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID, userInfo),  // Menu de navigation à droite
+      appBar: appBarEloquencia(context, pageID, yellow, 0),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo, yellow),  // Menu de navigation à droite
       body:  ListView(
         children: [
           Column(

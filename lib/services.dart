@@ -1,4 +1,7 @@
 import 'package:eloquencia/discount.dart';
+import 'package:mailto/mailto.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +13,8 @@ class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID, userInfo),
+      appBar: appBarEloquencia(context, pageID, yellow, 0),
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo, yellow),
       body: ListView(
         children: [
           Center(
@@ -270,8 +273,13 @@ class ServicesPage extends StatelessWidget {
                       color: yellow3
                     )
                   ),
-                  SelectableText('contact@eloquencia.org',  //TODO utiliser mailto pour envoyer sur appli de mail
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  Linkify(
+                    onOpen: (link) async {
+                      // if (!await launchUrl(Mailto(to: ['contact@eloquencia.org'], subject: 'mailto example subject', body: 'mailto example body'))) {
+                      //   throw Exception('Could not launch ${Mailto(to: ['contact@eloquencia.org'], subject: 'mailto example subject', body: 'mailto example body')}');
+                      // }
+                    },
+                    text: "contact@eloquencia.org",
                   ),
                   SizedBox(height: smallHeight(context)),
                   Text('Tous les fonds sont réinvestis dans nos actions (association à but non lucratif).',
@@ -328,9 +336,20 @@ class ServicesPage extends StatelessWidget {
                           color: yellow3
                         )
                       ),
-                      SelectableText('contact@eloquencia.org',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      // LinkifyText('contact@eloquencia.org',  //TODO utiliser mailto pour envoyer sur appli de mail
+                      //   linkTypes: [LinkType.url],
+                      //   linkStyle: TextStyle(
+                      //     color: Colors.green
+                      //   ),
+                      //   textStyle: Theme.of(context).textTheme.bodyMedium,
+                      //   onTap: (link) {
+                      //     Mailto(
+                      //       to: ['contact@eloquencia.org'],
+                      //       subject: 'mailto example subject',
+                      //       body: 'mailto example body',
+                      //     );
+                      //   },
+                      // ),
                     ],
                   ),
                   SizedBox(height: largeHeight(context)),
@@ -351,8 +370,8 @@ class ServicesPage extends StatelessWidget {
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       appBar: appBarEloquencia(context, pageID, 0),
-//       endDrawer: endDrawerEloquencia(context, pageID),
+//       appBar: appBarEloquencia(context, pageID, yellow, 0),
+//       endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, yellow),
 //       body: ListView(
 //         children: [
 //           Center(

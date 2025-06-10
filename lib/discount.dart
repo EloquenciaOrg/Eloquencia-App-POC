@@ -38,8 +38,8 @@ class _DiscountPageState extends State<DiscountPage> {
       return white;
     }
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
+      appBar: appBarEloquencia(context, pageID, yellow, 0),  // Barre de navigation en haut
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, yellow),
       body: Center(
         child: ListView(
           children: [

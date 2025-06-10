@@ -20,7 +20,7 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, yellow),
       body: Center(
         child: ListView(
           children: [

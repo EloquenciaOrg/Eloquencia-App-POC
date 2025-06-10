@@ -59,8 +59,8 @@ class _JoinPageState extends State<JoinPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarEloquencia(context, pageID, 0),
-      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo),
+      appBar: appBarEloquencia(context, pageID, yellow, 0),
+      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, yellow),
       body: Stack(
         children: [
           WebViewWidget(

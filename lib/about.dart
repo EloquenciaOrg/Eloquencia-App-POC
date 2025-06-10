@@ -10,7 +10,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, 0),  // Barre de navigation en haut
-      endDrawer: endDrawerEloquencia(context, pageID, userInfo),
+      endDrawer: endDrawerEloquencia(context, pageID, userInfo, yellow),
       body: Center(
         child: ListView(
           children: [
