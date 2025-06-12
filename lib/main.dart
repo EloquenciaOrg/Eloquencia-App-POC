@@ -1172,6 +1172,109 @@ Future apiDiscount(context, name, email, File? file, cgu) async {
   } 
 }
 
+apiLMS(context) async {
+  try {
+    final apiLMS = await http.get(
+      Uri.parse('https://dev.eloquencia.org/api/lms?index')
+    );
+    var lmsRes = jsonDecode(apiLMS.body) as Map<String, dynamic>;
+    print(lmsRes);
+    if (lmsRes['status'] == 'success') {
+      print('LMS connecté');
+      return lmsRes;
+    } else {
+      if (lmsRes['response_code'] == 200) {
+        print('Connexion réussie');
+      }
+      if (lmsRes['response_code'] == 201) {
+        throw Exception('Le message a été envoyé avec succès');
+      }
+      if (lmsRes['response_code'] == 403) {
+        throw Exception('Nécessite une authentification JWT');
+      }
+      if (lmsRes['response_code'] == 404) {
+        throw Exception('Rien n\'a été trouvé');
+      }
+      if (lmsRes['response_code'] == 405) {
+        throw Exception('Méthode incorrecte');
+      }
+      if (lmsRes['response_code'] == 412) {
+        throw Exception('Veuillez remplir le champ "Message"');
+      }
+      if (lmsRes['response_code'] == 500) {
+        throw Exception('Erreur interne du serveur');
+      }
+      if (lmsRes['response_code'] == 503) {
+        throw Exception('Serveur en maintenance');
+      }
+      if (apiLMS.body.isEmpty) {
+        throw Exception('Aucune information reçue');
+      }
+      if (lmsRes['status'] == 'error') {
+        throw Exception('Erreur Inconnue');
+      }
+    }
+  } catch (e) {
+    return Text(e.toString().split(':').last,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+      textAlign: TextAlign.justify
+    );
+  }
+}
+
+lmsQuote(context) async {
+  try {
+    var lmsRes = await apiLMS(context);
+    print(lmsRes);
+    if (lmsRes.isEmpty) {
+      throw Exception("Le LMS ne renvoie rien");  
+    } else {
+      return Column(
+        children: [
+          SizedBox(height: largeHeight(context)),
+          Text(lmsRes['citation']['text'],
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center
+          ),
+          SizedBox(height: smallHeight(context)),
+          Text('- ${lmsRes['citation']['author']}',
+            style: Theme.of(context).textTheme.headlineMedium
+          ),
+          SizedBox(height: largeHeight(context)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: getWidth(context, 25), vertical: getWidth(context, 25)),
+              color: yellow,
+              child: Column(
+                children: [
+                  Text(lmsRes['annonce']['title'],
+                    style: Theme.of(context).textTheme.titleSmall,
+                    textAlign: TextAlign.center
+                  ),
+                  SizedBox(height: smallHeight(context)),
+                  Text(lmsRes['annonce']['content'],
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.justify,
+                  )
+                ]
+              )
+            )
+          )
+        ],
+      );
+    }
+  } catch (e) {
+    return e;
+  }
+}
+
 class MyApp extends StatefulWidget {  // L'application
   final Map<String, dynamic> userInfo;
   const MyApp({super.key, required this.userInfo});
