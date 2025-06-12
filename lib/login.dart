@@ -206,7 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                                                     }
                                                     Navigator.push(
                                                       context,
-                                                      MaterialPageRoute(builder: (context) => WelcomePage(userInfo: widget.userInfo))
+                                                      MaterialPageRoute(builder: (context) => WelcomePage(userInfo: loginResult))
                                                     );
                                                   }
                                                 },

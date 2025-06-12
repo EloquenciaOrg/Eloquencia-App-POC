@@ -1,12 +1,11 @@
-//import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
 // ignore_for_file: avoid_print, strict_top_level_inference
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:eloquencia/about.dart';
 import 'package:eloquencia/article.dart';
 import 'package:eloquencia/blog.dart';
+import 'package:eloquencia/chapter.dart';
 import 'package:eloquencia/contact.dart';
 import 'package:eloquencia/home.dart';
 import 'package:eloquencia/logout.dart';
@@ -1177,6 +1176,7 @@ apiLMS(context) async {
     final apiLMS = await http.get(
       Uri.parse('https://dev.eloquencia.org/api/lms?index')
     );
+    print(apiLMS.body);
     var lmsRes = jsonDecode(apiLMS.body) as Map<String, dynamic>;
     print(lmsRes);
     if (lmsRes['status'] == 'success') {
@@ -1272,6 +1272,89 @@ lmsQuote(context) async {
     }
   } catch (e) {
     return e;
+  }
+}
+
+lmsChapters(context) async {
+  try {
+    var lmsRes = await apiLMS(context);
+    print(lmsRes);
+    var chapterList = lmsRes['chapitres'] as List<dynamic>;
+    print(chapterList);
+    return chapterList;
+  } catch (e) {
+    return e;
+  }
+}
+
+// showChapter(context, chapterID) async {try{var chapter = await lmsChapters(context)[chapterID];return Column(children: [Text(data)],)}catch(e){}}
+
+lmsDrawerBehavior(context, chapterID, chapList, userInfo) {  // Fonction pour gérer le comportement du menu de navigation
+  /*Est-ce que le nom du bouton est le même que l'ID de la page sur laquelle je suis
+  si oui, Navigator.pop(context)
+  si non, Navigator.push(context, MaterialPageRoute(builder: (context) => const lapage)*/
+
+  for (var i = 0; i < chapList.length; i++) {
+    if (chapterID == chapList[i]['ID']) {
+      Navigator.pop(context);  // Ferme le menu de navigation
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ChapterPage(chapterID: chapterID, userInfo: userInfo)));
+    }
+  }
+}
+
+endDrawerLMS(BuildContext context, pageID, userInfo, color, chapList) {  // Fonction pour créer le menu de navigation à droite
+  print(userInfo);
+  return Drawer(
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        drawerHeaderEloquencia(context, pageID, userInfo, color),  // En-tête du menu de navigation
+        for (var i = 0; i < chapList.length; i++)
+          ListTile(  // Bouton Services
+            title: Text(chapList[i]['name'],
+              style: Theme.of(context).textTheme.bodyMedium),
+            onTap: () {
+              lmsDrawerBehavior(context, chapList[i]['ID'], chapList, userInfo);
+            },
+          ),
+        copyrightEloquencia(context)  // Copyright
+      ],
+    ),
+  );
+}
+
+showChapter(context, chapterID) async {
+  List<dynamic> chapList = await lmsChapters(context);
+  Widget chapterWidgets;
+  Map<String,dynamic> chapterInfo;
+
+  if (chapList.isEmpty) {
+    throw Exception('Aucun blog à afficher');
+  } else {
+    for (var i = 0; i < chapList.length; i++) {
+      if (chapList[i]['ID'] == chapterID) {
+        chapterInfo = chapList[i];
+        print(chapterInfo);
+        chapterWidgets = Column(
+          children: [
+            SizedBox(height: mediumHeight(context)),
+            Text(chapterInfo['name'],
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: mediumHeight(context)),
+            Text(chapterInfo['description'],
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.justify,
+            ),
+            SizedBox(height: mediumHeight(context)),
+          ]
+        );
+        print('Blog $i Info: $chapterInfo');
+        print(chapterWidgets);
+        return chapterWidgets;
+      }
+    }
   }
 }
 

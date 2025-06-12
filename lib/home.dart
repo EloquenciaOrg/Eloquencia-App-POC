@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  getConnectivity() {
+  void getConnectivity() {
     subscription = Connectivity().onConnectivityChanged.listen(
       (List<ConnectivityResult> result) async {
         isDeviceConnected = await InternetConnectionChecker.instance.hasConnection;
@@ -301,7 +301,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  showDialogBox() {
+  void showDialogBox() {
     showDialog(
       context: context,
       builder: (BuildContext context) {

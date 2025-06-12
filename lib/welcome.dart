@@ -14,6 +14,7 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final pageID = 'Bienvenue';
   Widget lms = SizedBox();
+  List<dynamic> chapters = [];
 
   @override
   void initState() {
@@ -23,8 +24,10 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future<void> _initLMS() async {
     lms = await lmsQuote(context);
+    chapters = await lmsChapters(context);
     setState(() {
       lms = lms;
+      chapters = chapters;
     });
   }
 
@@ -32,7 +35,7 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarEloquencia(context, pageID, white),
-      endDrawer: endDrawerEloquencia(context, pageID, widget.userInfo, white),
+      endDrawer: endDrawerLMS(context, pageID, widget.userInfo, white, chapters),
       body: RefreshIndicator(
         color: yellow,
         onRefresh: () async {
