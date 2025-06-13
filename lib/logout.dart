@@ -1,3 +1,4 @@
+import 'package:eloquencia/home.dart';
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
@@ -100,6 +101,14 @@ class LogoutPage extends StatelessWidget {
                                             onPressed: () async {
                                               print(await storage.readAll());
                                               storage.deleteAll();  // TODO supprimer le token
+                                              runApp(MyApp(userInfo: {}));
+                                              while (Navigator.canPop(context)) {  // Je retourne à la page d'accueil
+                                                Navigator.pop(context);
+                                              }
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => HomePage(userInfo: {}))
+                                              );
                                             },
                                             child: Text('Se déconnecter',
                                               style: Theme.of(context).textTheme.bodyMedium

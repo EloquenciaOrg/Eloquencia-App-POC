@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:eloquencia/main.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_html/flutter_html.dart';
 
 class WelcomePage extends StatefulWidget {
   final Map<String, dynamic> userInfo;

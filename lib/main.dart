@@ -8,6 +8,7 @@ import 'package:eloquencia/blog.dart';
 import 'package:eloquencia/chapter.dart';
 import 'package:eloquencia/contact.dart';
 import 'package:eloquencia/home.dart';
+import 'package:eloquencia/lesson.dart';
 import 'package:eloquencia/logout.dart';
 import 'package:eloquencia/services.dart';
 import 'package:eloquencia/login.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -786,7 +788,7 @@ Future<List<Widget>> showBlogHome(context, userInfo) async {
           print(blogPic);
         } else {
           blogPic = null;
-          print(null);
+          print(blogPic);
         }
 
         print('Blog $i Info: $blogInfo');
@@ -817,7 +819,7 @@ Future<List<Widget>> showBlogPage(context, nbPage, userInfo) async {
           print(blogPic);
         } else {
           blogPic = null;
-          print(null);
+          print(blogPic);
         }
 
         print('Blog $i Info: $blogInfo');
@@ -1229,6 +1231,7 @@ lmsQuote(context) async {
   try {
     var lmsRes = await apiLMS(context);
     print(lmsRes);
+    print(HtmlUnescape().convert(lmsRes['annonce']['content']));
     if (lmsRes.isEmpty) {
       throw Exception("Le LMS ne renvoie rien");  
     } else {
@@ -1259,10 +1262,23 @@ lmsQuote(context) async {
                     textAlign: TextAlign.center
                   ),
                   SizedBox(height: smallHeight(context)),
-                  Text(lmsRes['annonce']['content'],
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.justify,
-                  )
+                  Html(data: HtmlUnescape().convert(lmsRes['annonce']['content']).replaceAllMapped(RegExp(r'src="\/\/'), (match) => 'src="https://'),
+                    extensions: [
+                      IframeHtmlExtension()
+                    ],
+                    style: {
+                      'body': Style(
+                        fontSize: FontSize(Theme.of(context).textTheme.bodyMedium!.fontSize!),
+                        textAlign: TextAlign.justify,
+                      ),
+                      'img': Style(
+                        width: Width(objectWidth(context))
+                      ),
+                      'hr': Style(
+                        fontSize: FontSize(1)
+                      )
+                    }
+                  ),
                 ]
               )
             )
@@ -1323,13 +1339,144 @@ endDrawerLMS(BuildContext context, pageID, userInfo, color, chapList) {  // Fonc
   );
 }
 
-showChapter(context, chapterID) async {
+apiLessons(context, chapterID) async {
+  try {
+    final apiLMS = await http.get(
+      Uri.parse('https://dev.eloquencia.org/api/lms?chapitre=$chapterID')
+    );
+    print(apiLMS.body);
+    var lmsRes = jsonDecode(apiLMS.body) as Map<String, dynamic>;
+    print(lmsRes);
+    if (lmsRes['status'] == 'success') {
+      print('LMS connecté');
+      var lessonList = lmsRes['lecons'];
+      print(lessonList);
+      return lessonList;
+    } else {
+      if (lmsRes['response_code'] == 200) {
+        print('Connexion réussie');
+      }
+      if (lmsRes['response_code'] == 201) {
+        throw Exception('Le message a été envoyé avec succès');
+      }
+      if (lmsRes['response_code'] == 403) {
+        throw Exception('Nécessite une authentification JWT');
+      }
+      if (lmsRes['response_code'] == 404) {
+        throw Exception('Rien n\'a été trouvé');
+      }
+      if (lmsRes['response_code'] == 405) {
+        throw Exception('Méthode incorrecte');
+      }
+      if (lmsRes['response_code'] == 412) {
+        throw Exception('Veuillez remplir le champ "Message"');
+      }
+      if (lmsRes['response_code'] == 500) {
+        throw Exception('Erreur interne du serveur');
+      }
+      if (lmsRes['response_code'] == 503) {
+        throw Exception('Serveur en maintenance');
+      }
+      if (apiLMS.body.isEmpty) {
+        throw Exception('Aucune information reçue');
+      }
+      if (lmsRes['status'] == 'error') {
+        throw Exception('Erreur Inconnue');
+      }
+    }
+  } catch (e) {
+    return Text(e.toString().split(':').last,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize
+      ),
+      textAlign: TextAlign.justify
+    );
+  }
+}
+
+Widget lessonSummary(context, chapterID, lessonID, lessonTitle, lessonSummary, userInfo) {  // Fonction pour créer un article de blog
+  return Column(
+    children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: GestureDetector(
+          child: Column(
+            children: [
+              Container(
+                width: objectWidth(context),
+                decoration: BoxDecoration(
+                  color: white,
+                  //border: Border.all(color: black, width: 3),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: objectWidth(context) - getWidth(context, 50),
+                      child: Column(
+                        children: [
+                          SizedBox(height: mediumHeight(context)),
+                          Text(HtmlUnescape().convert(lessonTitle),
+                            style: Theme.of(context).textTheme.titleSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: mediumHeight(context)),
+                          Text(HtmlUnescape().convert(lessonSummary),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.justify,
+                          ),
+                        ]
+                      )
+                    ),
+                    SizedBox(height: mediumHeight(context))
+                  ]
+                )
+              ),
+              Divider(
+                color: yellow3,
+                thickness: 3,
+                height: 0,
+              ),
+              Container(
+                width: objectWidth(context),
+                decoration: BoxDecoration(
+                  color: yellow,
+                  //border: Border.all(color: black, width: 3),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: smallHeight(context)),
+                    Text('Cliquer pour lire la suite',
+                      style: Theme.of(context).textTheme.labelLarge
+                    ),
+                    SizedBox(height: smallHeight(context))
+                  ],
+                )
+              ),
+              SizedBox(height: mediumHeight(context))
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LessonPage(chapterID: chapterID, lessonID: lessonID, userInfo: userInfo))  // Ouvrir l'article de blog au touché
+            );
+          },
+        ),
+      ),
+      SizedBox(height: mediumHeight(context))
+    ],
+  );
+}
+
+showChapter(context, chapterID, userInfo) async {
+  List<dynamic> lessonList = await apiLessons(context, chapterID);
   List<dynamic> chapList = await lmsChapters(context);
   Widget chapterWidgets;
   Map<String,dynamic> chapterInfo;
 
   if (chapList.isEmpty) {
-    throw Exception('Aucun blog à afficher');
+    throw Exception('Aucun chapitre à afficher');
   } else {
     for (var i = 0; i < chapList.length; i++) {
       if (chapList[i]['ID'] == chapterID) {
@@ -1347,15 +1494,95 @@ showChapter(context, chapterID) async {
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.justify,
             ),
-            SizedBox(height: mediumHeight(context)),
+            SizedBox(height: largeHeight(context)),
+            for (var i = 1; i <= lessonList.length; i++) 
+              lessonSummary(context, chapterID, lessonList[i-1]['ID'], lessonList[i-1]['title'], lessonList[i-1]['summary'], userInfo),
           ]
         );
-        print('Blog $i Info: $chapterInfo');
+        print('Chapitre $i Info: $chapterInfo');
         print(chapterWidgets);
         return chapterWidgets;
       }
     }
   }
+}
+
+Future<Widget> showLesson(context, int chapterID, lessonID, userInfo) async {
+  List<dynamic> lessonList = await apiLessons(context, chapterID);
+  Widget lessonWidget;
+  Map<String, dynamic> lessonInfo;
+
+  if (lessonList.isEmpty) {
+    throw Exception('Aucun blog à afficher');
+  } else {
+    for (var i = 0; i < lessonList.length; i++) {
+      if (lessonList[i]['ID'] == lessonID) {
+        lessonInfo = lessonList[i];
+        print(lessonInfo);
+        print(HtmlUnescape().convert(lessonInfo['content']));
+        lessonWidget = Column(
+          children: [
+            Text(HtmlUnescape().convert(lessonInfo['title']),
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: mediumHeight(context)),
+            // Text(HtmlUnescape().convert(lessonInfo['content'])),
+            Html(data: HtmlUnescape().convert(lessonInfo['content']).replaceAllMapped(RegExp(r'src="\/\/'), (match) => 'src="https://'),
+              extensions: [
+                IframeHtmlExtension()
+              ],
+              style: {
+                'h3': Style(
+                  fontSize: FontSize(Theme.of(context).textTheme.titleSmall!.fontSize!),
+                  textAlign: TextAlign.center
+                ),
+                'body': Style(
+                  fontSize: FontSize(Theme.of(context).textTheme.bodyMedium!.fontSize!),
+                  textAlign: TextAlign.justify,
+                ),
+                'img': Style(
+                  width: Width(objectWidth(context))
+                ),
+                'hr': Style(
+                  fontSize: FontSize(1)
+                )
+              }
+            ),
+            SizedBox(height: mediumHeight(context)),
+          ]
+        );
+        print('Lesson $i Info: $lessonInfo');
+        print(lessonWidget);
+        return lessonWidget;
+      }
+    }
+  }
+  return Scaffold(
+    appBar: appBarEloquencia(context, 'Erreur', yellow, 0),
+    endDrawer: endDrawerEloquencia(context, chapterID, userInfo, yellow),
+    body: ListView(
+      children: [
+        Center(
+          child: SizedBox(
+            width: objectWidth(context),
+            child: Column(
+              children: [
+                SizedBox(height: appBarHeight(context)),
+                Text('Article non trouvé',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: Theme.of(context).textTheme.titleLarge?.fontSize
+                  ),
+                  textAlign: TextAlign.center,
+                )
+              ]
+            )
+          )
+        )
+      ]
+    )
+  );
 }
 
 class MyApp extends StatefulWidget {  // L'application

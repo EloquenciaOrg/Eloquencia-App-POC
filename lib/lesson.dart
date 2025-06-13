@@ -1,24 +1,25 @@
 import 'package:eloquencia/main.dart';
 import 'package:flutter/material.dart';
 
-class ChapterPage extends StatefulWidget {
-  final int chapterID; 
+class LessonPage extends StatefulWidget {
+  final int chapterID;
+  final int lessonID; 
   final Map<String, dynamic> userInfo;
-  const ChapterPage({super.key, required this.chapterID, required this.userInfo});
+  const LessonPage({super.key, required this.chapterID, required this.lessonID, required this.userInfo});
 
   @override
-  State<ChapterPage> createState() => _ChapterPageState();
+  State<LessonPage> createState() => _LessonPageState();
 }
 
-class _ChapterPageState extends State<ChapterPage> {
-  final pageID = 'Chapitre';
-  late Widget chapter = SizedBox();  // Variable pour stocker l'article du blog
+class _LessonPageState extends State<LessonPage> {
+  final pageID = 'Leçon';
   List<dynamic> chapters = [];
+  late Widget lesson = SizedBox();
 
   @override
   void initState() {
     super.initState();
-    _initChapter();
+    _initLesson();
     _initLMS();
     // Any initialization code can go here if needed
   }
@@ -31,11 +32,10 @@ class _ChapterPageState extends State<ChapterPage> {
     });
   }
 
-  Future<void> _initChapter() async {
-    chapter = await showChapter(context, widget.chapterID, widget.userInfo);
-    if (!mounted) return;
+  Future<void> _initLesson() async {
+    lesson = await showLesson(context, widget.chapterID, widget.lessonID, widget.userInfo);
     setState(() {
-      chapter = chapter;
+      lesson = lesson;
     });
   }
 
@@ -52,7 +52,7 @@ class _ChapterPageState extends State<ChapterPage> {
               child: Column(
                 children: [
                   SizedBox(height: appBarHeight(context)),
-                  chapter,
+                  lesson
                 ]
               )
             )
